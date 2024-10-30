@@ -1,0 +1,71 @@
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "type" : "Feature",
+      "id" : 1,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          -6.1344238997656966,
+          53.294512998801842,
+          0
+        ]
+      },
+      "properties" : {
+        "OBJECTID" : 1,
+        "MaintenancePoint" : "Yes",
+        "owner" : "DLR",
+        "Confirmed" : "Yes",
+        "covered" : "No",
+        "nostands" : 32,
+        "x_itm" : 724367,
+        "y_itm" : 728758
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 2,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          -6.1287199994802597,
+          53.291441666809128,
+          0
+        ]
+      },
+      "properties" : {
+        "OBJECTID" : 2,
+        "MaintenancePoint" : "Yes",
+        "owner" : "DLR",
+        "Confirmed" : "Yes",
+        "covered" : "No",
+        "nostands" : 1,
+        "x_itm" : 724756,
+        "y_itm" : 728426
+      }
+    },
+    {
+      "type" : "Feature",
+      "id" : 5,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          -6.2084483982098133,
+          53.27615736165491,
+          0
+        ]
+      },
+      "properties" : {
+        "OBJECTID" : 5,
+        "MaintenancePoint" : "Yes",
+        "owner" : "DLR",
+        "Confirmed" : "Yes",
+        "covered" : "No",
+        "nostands" : 1,
+        "x_itm" : 719484,
+        "y_itm" : 726590
+      }
+    }
+  ]
+}
