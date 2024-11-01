@@ -1,8 +1,7 @@
-from django.db import models
-from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.db import models
+from django.contrib.auth import get_user_model
 
 # Model definitions for each of the data sets that will be used in this application.
-
 
 class BicycleMaintenanceStandSDCC(models.Model):
     """Model definition for Bicycle maintenance stands from South Dublin County Council.
@@ -13,7 +12,7 @@ class BicycleMaintenanceStandSDCC(models.Model):
     y = models.FloatField()
     area = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
-    geometry = gis_models.PointField()
+    geometry = models.PointField()
 
     def __str__(self):
         return f"{self.area} - {self.location}"
@@ -29,7 +28,7 @@ class BicycleParkingStandSDCC(models.Model):
     senior_stand = models.IntegerField()
     junior_stand = models.IntegerField()
     status = models.CharField(max_length=100)
-    geometry = gis_models.PointField()
+    geometry = models.PointField()
 
     def __str__(self):
         return f"{self.location} - {self.status} - {self.senior_stand} - {self.junior_stand}"
@@ -45,7 +44,7 @@ class BikeMaintenanceStandFCC(models.Model):
     private_stands = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.CharField(max_length=20)
     stand_type = models.CharField(max_length=100)
-    geometry = gis_models.PointField()
+    geometry = models.PointField()
 
     def __str__(self):
         return f"{self.area} - {self.location} - {self.stand_type} - {self.public_stands} - {self.private_stands}"
@@ -58,7 +57,7 @@ class BikeMaintenanceStandDLR(models.Model):
     maintenance_point = models.CharField(max_length=3)
     covered = models.CharField(max_length=3)
     confirmed = models.CharField(max_length=3)
-    geometry = gis_models.PointField()
+    geometry = models.PointField()
 
     def __str__(self):
         return f"{self.featureID} - {self.covered} - {self.confirmed}"
@@ -73,7 +72,7 @@ class CyclewaysSDCC(models.Model):
     linewt = models.IntegerField()
     refname = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    geometry = gis_models.LineStringField()
+    geometry = models.LineStringField()
     
 
     def __str__(self):
@@ -88,9 +87,19 @@ class CyclewaysDublinMetro(models.Model):
     twoway = models.CharField(max_length=1)
     bollard_protected = models.CharField(max_length=1)
     shape_length = models.CharField(max_length=255)
-    geometry = gis_models.LineStringField()
+    geometry = models.LineStringField()
     
     def __str__(self):
         return f"{self.featureID} - {self.name} - {self.twoway} - {self.bollard_protected}"
     
 
+
+
+## User Profile model
+User = get_user_model()
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    location = models.PointField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
