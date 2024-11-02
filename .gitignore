@@ -7,7 +7,7 @@ db.sqlite3
 media
 
 # Environments
-
+.env
 venv/
 env/
 ENV/
@@ -119,6 +119,7 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
+.env
 .venv
 env/
 venv/
