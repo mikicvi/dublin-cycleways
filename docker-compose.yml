@@ -1,0 +1,52 @@
+services:
+    nginx:
+        image: nginx:latest
+        ports:
+            - 80:80
+        volumes:
+            - ./nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - app
+
+    pgadmin4:
+        image: dpage/pgadmin4
+        ports:
+            - 20080:80
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+        volumes:
+            - ./pgadmin:/var/lib/pgadmin
+        depends_on:
+            - postgis
+            - nginx
+
+    postgis:
+        image: postgis/postgis
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        volumes:
+            - ./postgres_data:/var/lib/postgresql/data
+
+    app:
+        build: ./app
+        command: uwsgi --ini /app/uwsgi.ini
+        ports:
+            - 8000:8000
+        volumes:
+            - ./app:/app
+        depends_on:
+            - postgis
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_HOST: ${POSTGRES_HOST}
+            POSTGRES_PORT: ${POSTGRES_PORT}
+            DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+            DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+            DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
+            DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+            DJANGO_DEBUG: ${DJANGO_DEBUG}
