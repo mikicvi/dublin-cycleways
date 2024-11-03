@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import socket
+
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -32,7 +34,13 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG")
 
-ALLOWED_HOSTS = ['localhost','0.0.0.0', '127.0.0.1', 'dublin-cycleways.xyz', 'www.dublin-cycleways.xyz']
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+    '127.0.0.1',
+    'dublin-cycleways.xyz',
+    'www.dublin-cycleways.xyz'
+]
 
 
 # Application definition
@@ -129,7 +137,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'staticfiles/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -139,4 +147,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+
+if socket.gethostname() =="Vilims=MacBook-Pro":
+    DATABASES["default"]["HOST"] = "localhost"
+    DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
+else:
+    DATABASES["default"]["HOST"] = os.getenv("POSTGRES_HOST")
+    DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
+ 
+# Set DEPLOY_SECURE to True only for LIVE deployment
+if os.getenv("DEPLOY_SECURE") == "True":
+    DEBUG = False
+    TEMPLATES[0]["OPTIONS"]["debug"] = False
+    ALLOWED_HOSTS = ['*.dublin-cycleways.xyz','dublin-cycleways.xyz','localhost','127.0.0.1']
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+else:
+    DEBUG = True
+    TEMPLATES[0]["OPTIONS"]["debug"] = True
+    ALLOWED_HOSTS = ['*', ]
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
 

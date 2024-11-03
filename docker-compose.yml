@@ -7,6 +7,8 @@ services:
             - ./nginx/conf.d:/etc/nginx/conf.d
         depends_on:
             - app
+        networks:
+            - cycleways_network
 
     pgadmin4:
         image: dpage/pgadmin4
@@ -20,6 +22,8 @@ services:
         depends_on:
             - postgis
             - nginx
+        networks:
+            - cycleways_network
 
     postgis:
         image: postgis/postgis
@@ -29,6 +33,8 @@ services:
             POSTGRES_DB: ${POSTGRES_DB}
         volumes:
             - ./postgres_data:/var/lib/postgresql/data
+        networks:
+            - cycleways_network
 
     app:
         build: ./app
@@ -50,3 +56,8 @@ services:
             DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
             DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
             DJANGO_DEBUG: ${DJANGO_DEBUG}
+        networks:
+            - cycleways_network
+
+networks:
+    cycleways_network:
