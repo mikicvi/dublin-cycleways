@@ -26,8 +26,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8zy1jbn##+##s4d$$@*+)cjz$q8m=+9qwx4d6(_th8xmb*m657'
-
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 
@@ -149,7 +147,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 
-if socket.gethostname() =="Vilims=MacBook-Pro":
+if socket.gethostname() =="VilimsMacBookPro" or socket.gethostname() == "TS4-Dock":
     DATABASES["default"]["HOST"] = "localhost"
     DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
 else:
