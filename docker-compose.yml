@@ -3,10 +3,15 @@ services:
         image: nginx:latest
         ports:
             - 80:80
+            - 443:443
         volumes:
             - ./nginx/conf.d:/etc/nginx/conf.d
+            - /etc/letsencrypt/live/dublin-cycleways.xyz/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+            - /etc/letsencrypt/live/dublin-cycleways.xyz/privkey.pem:/etc/ssl/private/privkey.pem:ro
         depends_on:
             - app
+        networks:
+            - cycleways_network 
 
     pgadmin4:
         image: dpage/pgadmin4
@@ -17,6 +22,8 @@ services:
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
         volumes:
             - ./pgadmin:/var/lib/pgadmin
+        networks:
+            - cycleways_network
         depends_on:
             - postgis
             - nginx
@@ -29,14 +36,19 @@ services:
             POSTGRES_DB: ${POSTGRES_DB}
         volumes:
             - ./postgres_data:/var/lib/postgresql/data
+        networks:
+            - cycleways_network
 
     app:
-        build: ./app
+        image: mikicv/dublin_cycleways
+          #build: ./app
         command: uwsgi --ini /app/uwsgi.ini
         ports:
             - 8000:8000
-        volumes:
-            - ./app:/app
+        # volumes:
+        #     - ./app:/app
+        networks:
+            - cycleways_network
         depends_on:
             - postgis
         environment:
@@ -50,3 +62,8 @@ services:
             DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
             DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
             DJANGO_DEBUG: ${DJANGO_DEBUG}
+            DEPLOY_SECURE: ${DEPLOY_SECURE}
+
+networks:
+    cycleways_network:
+
