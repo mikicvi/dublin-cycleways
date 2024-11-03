@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3
+FROM condaforge/miniforge3
 
 RUN mkdir -p /app
 WORKDIR /app
@@ -9,7 +9,7 @@ ENV DJANGO_SETTINGS_MODULE=dublin_cycleways.settings
 
 # Create the environment:
 COPY ENV.yml /app
-RUN conda env create -f ENV.yml
+RUN conda env create -f ENV.yml && conda clean -afy
 
 RUN apt-get update && apt-get install -y postgresql-client && apt-get clean && rm -rf /var/lib/apt/lists/*
 
