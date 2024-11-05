@@ -97,6 +97,16 @@
       }
     }
     
+    // On document load, update the location and display
+    document.addEventListener('DOMContentLoaded', function () {
+      {% if location %}
+      var latitude = {{ location.y }}
+      var longitude = {{ location.x }}
+      updateMap(latitude, longitude, 0);
+      {% else %}
+      updateLocation()
+      {% endif %}
+    })
     // On page load, update the location
   </script>
 {% endblock %}
