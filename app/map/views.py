@@ -5,6 +5,7 @@ from django.contrib.auth import login, get_user_model, logout, authenticate
 from django.contrib.gis.geos import Point, LineString
 from django.http import JsonResponse
 from .models import CyclewaysSDCC, CyclewaysDublinMetro, Profile
+import json
 
 User = get_user_model()
 
@@ -73,11 +74,12 @@ def cycleways_geojson(request):
         dublin_metro_cycleways = CyclewaysDublinMetro.objects.all()
 
         # Serialize the querysets to GeoJSON
-        sdcc_geojson = serialize('geojson', sdcc_cycleways, geometry_field='geometry', fields=('featureID', 'layer'))
-        dublin_metro_geojson = serialize('geojson', dublin_metro_cycleways, geometry_field='geometry', fields=('featureID', 'name'))
+        sdcc_geojson = serialize('geojson', sdcc_cycleways, geometry_field='geometry', fields=(
+            'featureID', 'name', 'colour', 'linetype', 'refname', 'description'))
+        dublin_metro_geojson = serialize('geojson', dublin_metro_cycleways, geometry_field='geometry', fields=(
+            'featureID', 'name', 'twoway', 'bollard_protected', 'shape_length'))
 
         # Combine the features
-        import json
         sdcc_features = json.loads(sdcc_geojson)['features']
         dublin_metro_features = json.loads(dublin_metro_geojson)['features']
         combined_features = sdcc_features + dublin_metro_features
@@ -90,3 +92,4 @@ def cycleways_geojson(request):
         return JsonResponse(combined_geojson)
     else:
         return redirect('login')
+    

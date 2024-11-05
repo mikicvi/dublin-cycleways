@@ -66,7 +66,7 @@ class CyclewaysSDCC(models.Model):
     """Model definition for Cycleways from South Dublin County Council.
     """
     featureID = models.IntegerField()
-    layer = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     colour = models.IntegerField()
     linetype = models.CharField(max_length=50, null=True)
     linewt = models.IntegerField()
