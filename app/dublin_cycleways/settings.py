@@ -147,7 +147,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 
-if socket.gethostname() =="VilimsMacBookPro" or socket.gethostname() == "TS4-Dock":
+if socket.gethostname() =="VilimsMacBookPro" or socket.gethostname() == "TS4-Dock" or socket.gethostname() == "vilims-macbook-pro.tailcce96.ts.net":
     DATABASES["default"]["HOST"] = "localhost"
     DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
 else:

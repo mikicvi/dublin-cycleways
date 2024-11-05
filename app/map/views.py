@@ -39,15 +39,16 @@ def update_location(request):
     if request.method == 'POST':
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
-        if (latitude and longitude):
+        if latitude and longitude:
             try:
                 latitude = float(latitude)
                 longitude = float(longitude)
                 location = Point(longitude, latitude)
 
                 profile, created = Profile.objects.get_or_create(user=request.user)
-                profile.location = location
-                profile.save()
+                if profile.location != location:
+                    profile.location = location
+                    profile.save()
                 return JsonResponse({'status': 'success'})
             except ValueError:
                 return JsonResponse({'status': 'error', 'message': 'Invalid coordinates'})
