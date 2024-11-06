@@ -148,3 +148,6 @@ dmypy.json
 # Docker volumes
 pgadmin/
 postgres_data/
+
+# Data load flag
+data_loaded.flag
