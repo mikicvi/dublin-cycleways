@@ -100,6 +100,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -135,19 +142,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'staticfiles/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STATIC_URL = '/staticfiles/'
+STATICFILES_DIRS = [BASE_DIR / "static"]  
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+hostnames = ["VilimsMacBookPro", "TS4-Dock", "vilims-macbook-pro.tailcce96.ts.net", "Vilims-MacBook-Pro.local"]
 
-
-if socket.gethostname() =="VilimsMacBookPro" or socket.gethostname() == "TS4-Dock":
+if socket.gethostname() in hostnames:
     DATABASES["default"]["HOST"] = "localhost"
     DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
 else:

@@ -10,93 +10,144 @@
 
   <h1>Dublin Cycling Map</h1>
   <div id="map"></div>
+
+  <div class="d-flex justify-content-center mt-2">
+    <button class="btn btn-primary" onclick="updateLocation()">Update Location</button>
+  </div>
 {% endblock %} {% block extra_js %}
   <script>
-    // Initialize the map
-    var map = L.map('map').setView([53.3498, -6.2603], 12) // Centered on Dublin
-    
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map)
-    
-    // Define styling for cycleways
-    function cyclewayStyle(feature) {
-      return {
-        color: '#3388ff',
-        weight: 3,
-        opacity: 0.7
-      }
-    }
-    
-    function updateMap(latitude, longitude, accuracy) {
-      let marker
-      if (marker) {
-        map.removeLayer(marker)
-      }
-      marker = L.marker([latitude, longitude]).addTo(map) // Add a marker at the user's location
-    }
-    
-    // Load cycleways GeoJSON
-    fetch("{% url 'cycleways_geojson' %}")
-      .then((response) => response.json())
-      .then((data) => {
-        L.geoJSON(data, {
-          style: cyclewayStyle,
-          onEachFeature: function (feature, layer) {
-            let popupContent = `<strong>Feature ID:</strong> ${feature.properties.featureID}<br>`
-            if (feature.properties.name) {
-              popupContent += `<strong>Name:</strong> ${feature.properties.name}<br>`
-            }
-            if (feature.properties.layer) {
-              popupContent += `<strong>Layer:</strong> ${feature.properties.layer}<br>`
-            }
-            layer.bindPopup(popupContent)
-          }
-        }).addTo(map)
-      })
-    
-    function updateLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          function (position) {
-            var latitude = position.coords.latitude
-            var longitude = position.coords.longitude
-            var accuracy = position.coords.accuracy
-    
-            updateMap(latitude, longitude, accuracy)
-    
-            // Send location to Django view
-            fetch('{% url "update_location" %}', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
-              },
-              body: 'latitude=' + latitude + '&longitude=' + longitude
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.success) {
-                  console.log('Location updated successfully')
-                } else {
-                  console.error('Error updating location:', data.error)
-                }
-              })
-              .catch((error) => {
-                console.error('Fetch error:', error)
-              })
-          },
-          function (error) {
-            console.error('Error getting location:', error)
-          }
-        )
-      } else {
-        console.error('Geolocation is not supported by this browser.')
-      }
-    }
-    
-    // On page load, update the location
-  </script>
+	const MAP_CENTER = [53.3498, -6.2603];
+	const MAP_ZOOM = 12;
+	const TILE_LAYER_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	const TILE_LAYER_ATTRIBUTION = '© OpenStreetMap contributors';
+
+	// Initialize the map
+	const map = L.map('map').setView(MAP_CENTER, MAP_ZOOM);
+
+	// Add OpenStreetMap tiles
+	L.tileLayer(TILE_LAYER_URL, {
+	  maxZoom: 19,
+	  attribution: TILE_LAYER_ATTRIBUTION
+	}).addTo(map);
+
+	// Define styling for cycleways
+	function cyclewayStyle(feature) {
+	  return {
+	    color: '#3388ff',
+	    weight: 3,
+	    opacity: 0.7
+	  };
+	}
+
+	// Create popup content for each feature
+	function createPopupContent(feature) {
+	  let popupContent = '';
+	  if (feature.properties.featureID) {
+	    popupContent += `<strong>Feature ID:</strong> ${feature.properties.featureID}<br>`;
+	  }
+	  if (feature.properties.name) {
+	    popupContent += `<strong>Name:</strong> ${feature.properties.name !== 'undefined' ? feature.properties.name : 'No Name'}<br>`;
+	  }
+	  if (feature.properties.layer) {
+	    popupContent += `<strong>Layer:</strong> ${feature.properties.layer}<br>`;
+	  }
+	  if (feature.properties.colour) {
+	    popupContent += `<strong>Colour:</strong> ${feature.properties.colour}<br>`;
+	  }
+	  if (feature.properties.linetype) {
+	    popupContent += `<strong>Line Type:</strong> ${feature.properties.linetype}<br>`;
+	  }
+	  if (feature.properties.refname) {
+	    popupContent += `<strong>Reference Name:</strong> ${feature.properties.refname}<br>`;
+	  }
+	  if (feature.properties.description) {
+	    popupContent += `<strong>Description:</strong> ${feature.properties.description}<br>`;
+	  }
+	  if (feature.properties.twoway) {
+	    const twoway = feature.properties.twoway === '1' ? 'Yes' : 'No';
+	    popupContent += `<strong>Two Way:</strong> ${twoway}<br>`;
+	  }
+	  if (feature.properties.bollard_protected) {
+	    const bollardProtected = feature.properties.bollard_protected === '1' ? 'Yes' : 'No';
+	    popupContent += `<strong>Bollard Protected:</strong> ${bollardProtected}<br>`;
+	  }
+	  if (feature.properties.shape_length) {
+	    const shapeLengthKm = (parseFloat(feature.properties.shape_length) / 1000).toFixed(2);
+	    popupContent += `<strong>Lane Length:</strong> ${shapeLengthKm} km<br>`;
+	  }
+	  return popupContent;
+	}
+
+	// Load cycleways GeoJSON and add to map
+	function loadCycleways() {
+	  fetch("{% url 'cycleways_geojson' %}")
+	    .then(response => response.json())
+	    .then(data => {
+	      L.geoJSON(data, {
+	        style: cyclewayStyle,
+	        onEachFeature: function (feature, layer) {
+	          const popupContent = createPopupContent(feature);
+	          layer.bindPopup(popupContent);
+	        }
+	      }).addTo(map);
+	    })
+	    .catch(error => console.error('Error loading cycleways:', error));
+	}
+
+	// Update the map with user's location
+	function updateMap(latitude, longitude, accuracy) {
+	  let marker;
+	  if (marker) {
+	    map.removeLayer(marker);
+	  }
+	  marker = L.marker([latitude, longitude]).addTo(map);
+	  marker.bindPopup(`You are within ${accuracy} meters from this point`);
+	  loadCycleways();
+	}
+
+	// Update user's location
+	function updateLocation() {
+	  if (navigator.geolocation) {
+	    navigator.geolocation.getCurrentPosition(
+	      position => {
+	        const { latitude, longitude, accuracy } = position.coords;
+	        updateMap(latitude, longitude, accuracy);
+
+	        // Send location to Django view
+	        fetch('{% url "update_location" %}', {
+	          method: 'POST',
+	          headers: {
+	            'Content-Type': 'application/x-www-form-urlencoded',
+	            'X-CSRFToken': '{{csrf_token}}'
+	          },
+	          body: `latitude=${latitude}&longitude=${longitude}`
+	        })
+	          .then(response => response.json())
+	          .then(data => {
+	            if (data.status === 'success') {
+	              console.log('Location updated successfully');
+	            } else {
+	              console.error('Error updating location:', data.error);
+	            }
+	          })
+	          .catch(error => console.error('Fetch error:', error));
+	      },
+	      error => console.error('Error getting location:', error)
+	    );
+	  } else {
+	    console.error('Geolocation is not supported by this browser.');
+	  }
+	}
+
+	// On document load, update the location and display
+	document.addEventListener('DOMContentLoaded', function () {
+	  {% if location %}
+	  const latitude = {{ location.y }};
+	  const longitude = {{ location.x }};
+	  updateMap(latitude, longitude, 0);
+	  {% else %}
+	  updateLocation();
+	  {% endif %}
+	});
+</script>
 {% endblock %}

@@ -76,7 +76,7 @@ datasets = [
         'geojson_path': Path(__file__).resolve().parent / 'data' / 'SDCC_Cycleways_-1477972845665274852.geojson',
         'mapping': {
             'featureID': 'OBJECTID',
-            'layer': 'Layer',
+            'name': 'Layer',
             'colour': 'Color',
             'linetype': 'Linetype',
             'linewt': 'LineWt',

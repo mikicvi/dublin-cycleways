@@ -29,9 +29,16 @@ python manage.py createsuperuser --no-input || true
 echo "Collecting static files..."
 python manage.py collectstatic --no-input
 
-# Load the data
-echo "Loading data..."
-python manage.py shell -c "from map import load; load.run()" || true
+# Load the data if it hasn't been loaded before
+DATA_LOADED_FLAG="/app/data_loaded.flag"
+if [ ! -f "$DATA_LOADED_FLAG" ]; then
+  echo "Loading data..."
+  python manage.py shell -c "from map import load; load.run()" || true
+  touch "$DATA_LOADED_FLAG"
+  echo "Data has been loaded on $(date '+%d-%m-%Y %H:%M:%S')." >> "$DATA_LOADED_FLAG"
+else
+  echo "Data has already been loaded. Skipping data load."
+fi
  
 # Start uWSGI
 echo "Starting uWSGI..."
