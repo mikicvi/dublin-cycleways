@@ -76,7 +76,7 @@ class CyclewaysSDCC(models.Model):
     
 
     def __str__(self):
-        return f"{self.featureID} - {self.layer}"
+        return f"{self.featureID} - {self.name}"
     
 class CyclewaysDublinMetro(models.Model):
     """Model definition for Cycleways for Dublin Metropolitan area.
