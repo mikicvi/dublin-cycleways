@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.core.cache import cache
 from django.core.serializers import serialize
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, get_user_model, logout, authenticate
@@ -67,10 +68,19 @@ def map_view(request):
         return render(request, 'map.html', {'user': request.user, 'location': location})
     else:
         return redirect('login')
+    
 
 def cycleways_geojson(request):
     if request.user.is_authenticated:
+        # cache for performance reasons
+        cache_key = 'cycleways_geojson'
+        cached_data = cache.get(cache_key)
         sdcc_cycleways = CyclewaysSDCC.objects.all()
+        
+        if cached_data:
+            return JsonResponse(cached_data)
+        
+        # No cached data, so query the database
         dublin_metro_cycleways = CyclewaysDublinMetro.objects.all()
 
         # Serialize the querysets to GeoJSON
@@ -89,6 +99,7 @@ def cycleways_geojson(request):
             'features': combined_features
         }
 
+        cache.set(cache_key, combined_geojson, None)  # Cache indefinitely
         return JsonResponse(combined_geojson)
     else:
         return redirect('login')

@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 
 # Model definitions for each of the data sets that will be used in this application.
 
@@ -73,7 +74,14 @@ class CyclewaysSDCC(models.Model):
     refname = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     geometry = models.LineStringField()
-    
+  
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete('cycleways_geojson')
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        cache.delete('cycleways_geojson')  
 
     def __str__(self):
         return f"{self.featureID} - {self.name}"
@@ -88,6 +96,14 @@ class CyclewaysDublinMetro(models.Model):
     bollard_protected = models.CharField(max_length=1)
     shape_length = models.CharField(max_length=255)
     geometry = models.LineStringField()
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete('cycleways_geojson')
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        cache.delete('cycleways_geojson')
     
     def __str__(self):
         return f"{self.featureID} - {self.name} - {self.twoway} - {self.bollard_protected}"
