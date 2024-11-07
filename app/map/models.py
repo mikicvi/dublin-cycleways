@@ -4,6 +4,7 @@ from django.core.cache import cache
 
 # Model definitions for each of the data sets that will be used in this application.
 
+
 class BicycleMaintenanceStandSDCC(models.Model):
     """Model definition for Bicycle maintenance stands from South Dublin County Council.
     """
@@ -34,6 +35,7 @@ class BicycleParkingStandSDCC(models.Model):
     def __str__(self):
         return f"{self.location} - {self.status} - {self.senior_stand} - {self.junior_stand}"
 
+
 class BikeMaintenanceStandFCC(models.Model):
     """Model definition for Bicycle maintenance stands from Fingal County Council.
     """
@@ -50,6 +52,7 @@ class BikeMaintenanceStandFCC(models.Model):
     def __str__(self):
         return f"{self.area} - {self.location} - {self.stand_type} - {self.public_stands} - {self.private_stands}"
 
+
 class BikeMaintenanceStandDLR(models.Model):
     """Model definition for Bicycle maintenance stands from Dun Laoghaire Rathdown County Council.
     """
@@ -62,6 +65,7 @@ class BikeMaintenanceStandDLR(models.Model):
 
     def __str__(self):
         return f"{self.featureID} - {self.covered} - {self.confirmed}"
+
 
 class CyclewaysSDCC(models.Model):
     """Model definition for Cycleways from South Dublin County Council.
@@ -85,6 +89,7 @@ class CyclewaysSDCC(models.Model):
 
     def __str__(self):
         return f"{self.featureID} - {self.name}"
+
     
 class CyclewaysDublinMetro(models.Model):
     """Model definition for Cycleways for Dublin Metropolitan area.
@@ -107,12 +112,12 @@ class CyclewaysDublinMetro(models.Model):
     
     def __str__(self):
         return f"{self.featureID} - {self.name} - {self.twoway} - {self.bollard_protected}"
-    
 
 
-
-## User Profile model
+# # User Profile model
 User = get_user_model()
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.PointField(null=True, blank=True)
