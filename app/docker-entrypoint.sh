@@ -30,7 +30,7 @@ echo "Collecting static files..."
 python manage.py collectstatic --no-input
 
 # Load the data if it hasn't been loaded before
-DATA_LOADED_FLAG="/app/data_loaded.flag"
+DATA_LOADED_FLAG="/data_load/data_loaded.flag"
 if [ ! -f "$DATA_LOADED_FLAG" ]; then
   echo "Loading data..."
   python manage.py shell -c "from map import load; load.run()" || true
