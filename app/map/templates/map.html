@@ -9,6 +9,16 @@
   </style>
 
   <h1>Dublin Cycling Map</h1>
+
+  <div class="d-flex justify-content-center mt-2">
+    <select id="amenities-dropdown" class="form-select w-50" onchange="loadSelectedCategory()">
+      <option value="">Select an amenity</option>
+      <option value="parking_stands">Parking Stands</option>
+      <option value="maintenance_stands">Maintenance Stands</option>
+    </select>
+  </div>
+
+  
   <div id="map"></div>
 
   <div class="d-flex justify-content-center mt-2">
@@ -138,6 +148,65 @@
 	    console.error('Geolocation is not supported by this browser.');
 	  }
 	}
+
+    // Layer group to manage layers added by loadSelectedCategory
+    const categoryLayerGroup = L.layerGroup().addTo(map);
+
+    // Load selected category on the map
+    function loadSelectedCategory() {
+      const selectedCategory = document.getElementById('amenities-dropdown').value;
+      let url = '';
+
+      if (selectedCategory === 'parking_stands') {
+        url = "{% url 'parking_stands_geojson' %}";
+      } else if (selectedCategory === 'maintenance_stands') {
+        url = "{% url 'maintenance_stands_geojson' %}";
+      } else {
+        categoryLayerGroup.clearLayers();
+        return;
+      }
+
+      var greenIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+        });
+
+
+      if (url) {
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            const redIcon = L.icon({
+              iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-red.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+              shadowSize: [41, 41]
+            });
+
+            const geoJsonLayer = L.geoJSON(data, {
+              pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, { icon: greenIcon });
+              },
+              onEachFeature: function (feature, layer) {
+                const popupContent = createPopupContent(feature);
+                layer.bindPopup(popupContent);
+              }
+            });
+
+            // Clear existing layers in the categoryLayerGroup and add new layer
+            categoryLayerGroup.clearLayers();
+            categoryLayerGroup.addLayer(geoJsonLayer);
+          })
+          .catch(error => console.error(`Error loading ${selectedCategory}:`, error));
+      }
+    }
+
 
 	// On document load, update the location and display
 	document.addEventListener('DOMContentLoaded', function () {

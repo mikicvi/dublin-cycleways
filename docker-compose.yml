@@ -41,6 +41,7 @@ services:
             - 8000:8000
         volumes:
             - ./app:/app
+            - ./data_load:/data_load
         depends_on:
             - postgis
         environment:
