@@ -14,6 +14,7 @@ The application requires the following environment variables to be set in a `.en
 | `DJANGO_SUPERUSER_PASSWORD` | Superuser password for Django admin | `supersecretpassword`           |
 | `DJANGO_SECRET_KEY`         | Secret key for Django application   | `django-insecure-yourtokenhere` |
 | `DJANGO_DEBUG`              | Debug mode for Django               | `True`                          |
+| `DEPLOY_SECURE`             | Settings flag for secure deployment | `False`                         |
 | `POSTGRES_DB`               | PostgreSQL database name            | `gis`                           |
 | `POSTGRES_USER`             | PostgreSQL username                 | `docker`                        |
 | `POSTGRES_PASSWORD`         | PostgreSQL password                 | `docker`                        |
