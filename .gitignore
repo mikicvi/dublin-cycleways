@@ -149,3 +149,5 @@ dmypy.json
 pgadmin/
 postgres_data/
 staticfiles/
+data_load/
+data_loaded.flag
