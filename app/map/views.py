@@ -188,3 +188,6 @@ def maintenance_stands_geojson(request):
     else:
         return redirect('login')
     
+
+def offline(request):
+    return render(request, 'offline.html')
