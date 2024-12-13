@@ -21,13 +21,11 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG")
@@ -40,6 +38,7 @@ ALLOWED_HOSTS = [
     'www.dublin-cycleways.xyz'
 ]
 
+CORS_ALLOWED_ORIGINS = ['http://localhost:80', 'https://localhost:443', 'https://dublin-cycleways.xyz', 'https://www.dublin-cycleways.xyz']
 
 # Application definition
 
@@ -52,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'map.apps.MapConfig',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -62,7 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'dublin_cycleways.urls'
@@ -85,7 +86,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dublin_cycleways.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -107,7 +107,6 @@ CACHES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -126,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -138,10 +136,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -149,7 +145,10 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/staticfiles/'
-STATICFILES_DIRS = [BASE_DIR / "static"]  
+STATICFILES_DIRS = [
+    BASE_DIR / "dublin_cycleways" / "static",
+    BASE_DIR / "map" / "static",
+]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -157,7 +156,7 @@ hostnames = ["VilimsMacBookPro", "TS4-Dock", "vilims-macbook-pro.tailcce96.ts.ne
 
 if socket.gethostname() in hostnames:
     DATABASES["default"]["HOST"] = "localhost"
-    DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
+    DATABASES["default"]["PORT"] = os.getenv("LOCAL_POSTGRES_PORT")
 else:
     DATABASES["default"]["HOST"] = os.getenv("POSTGRES_HOST")
     DATABASES["default"]["PORT"] = os.getenv("POSTGRES_PORT")
@@ -166,7 +165,7 @@ else:
 if os.getenv("DEPLOY_SECURE") == "True":
     DEBUG = False
     TEMPLATES[0]["OPTIONS"]["debug"] = False
-    ALLOWED_HOSTS = ['*.dublin-cycleways.xyz','dublin-cycleways.xyz','localhost','127.0.0.1']
+    ALLOWED_HOSTS = ['*.dublin-cycleways.xyz', 'dublin-cycleways.xyz', 'localhost', '127.0.0.1']
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
 else:
