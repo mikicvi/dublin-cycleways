@@ -1,222 +1,211 @@
-{% extends 'base.html' %} {% block title %}
-  Map
-{% endblock %} {% block content %}
-  <style>
+{% extends 'base.html' %}
+
+{% block title %}Map{% endblock %}
+
+{% block content %}
+<style>
     #map {
-      width: 100%;
-      height: 600px;
+        width: 100%;
+        height: 600px;
     }
-  </style>
+</style>
 
-  <h1>Dublin Cycling Map</h1>
+<h1>Dublin Cycling Map</h1>
 
-  <div class="d-flex justify-content-center mt-2">
+<div class="d-flex justify-content-center mt-2">
     <select id="amenities-dropdown" class="form-select w-50" onchange="loadSelectedCategory()">
-      <option value="">Select an amenity</option>
-      <option value="parking_stands">Parking Stands</option>
-      <option value="maintenance_stands">Maintenance Stands</option>
+        <option value="">Select an amenity</option>
+        <option value="parking_stands">Parking Stands</option>
+        <option value="maintenance_stands">Maintenance Stands</option>
     </select>
-  </div>
+</div>
 
-  
-  <div id="map"></div>
+<div id="map"></div>
 
-  <div class="d-flex justify-content-center mt-2">
+<div class="d-flex justify-content-center mt-2">
     <button class="btn btn-primary" onclick="updateLocation()">Update Location</button>
-  </div>
-{% endblock %} {% block extra_js %}
-  <script>
-	const MAP_CENTER = [53.3498, -6.2603];
-	const MAP_ZOOM = 12;
-	const TILE_LAYER_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-	const TILE_LAYER_ATTRIBUTION = '© OpenStreetMap contributors';
+</div>
+{% endblock %}
 
-	// Initialize the map
-	const map = L.map('map').setView(MAP_CENTER, MAP_ZOOM);
+{% block extra_js %}
+<script>
+    const MAP_CENTER = [53.3498, -6.2603];
+    const MAP_ZOOM = 12;
+    const API_BASE = '/api/';
+    
+    // Initialize map
+    const map = L.map('map').setView(MAP_CENTER, MAP_ZOOM);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-	// Add OpenStreetMap tiles
-	L.tileLayer(TILE_LAYER_URL, {
-	  maxZoom: 19,
-	  attribution: TILE_LAYER_ATTRIBUTION
-	}).addTo(map);
-
-	// Define styling for cycleways
-	function cyclewayStyle(feature) {
-	  return {
-	    color: '#3388ff',
-	    weight: 3,
-	    opacity: 0.7
-	  };
-	}
-
-	// Create popup content for each feature
-	function createPopupContent(feature) {
-	  let popupContent = '';
-	  if (feature.properties.featureID) {
-	    popupContent += `<strong>Feature ID:</strong> ${feature.properties.featureID}<br>`;
-	  }
-	  if (feature.properties.name) {
-	    popupContent += `<strong>Name:</strong> ${feature.properties.name !== 'undefined' ? feature.properties.name : 'No Name'}<br>`;
-	  }
-	  if (feature.properties.layer) {
-	    popupContent += `<strong>Layer:</strong> ${feature.properties.layer}<br>`;
-	  }
-	  if (feature.properties.colour) {
-	    popupContent += `<strong>Colour:</strong> ${feature.properties.colour}<br>`;
-	  }
-	  if (feature.properties.linetype) {
-	    popupContent += `<strong>Line Type:</strong> ${feature.properties.linetype}<br>`;
-	  }
-	  if (feature.properties.refname) {
-	    popupContent += `<strong>Reference Name:</strong> ${feature.properties.refname}<br>`;
-	  }
-	  if (feature.properties.description) {
-	    popupContent += `<strong>Description:</strong> ${feature.properties.description}<br>`;
-	  }
-	  if (feature.properties.twoway) {
-	    const twoway = feature.properties.twoway === '1' ? 'Yes' : 'No';
-	    popupContent += `<strong>Two Way:</strong> ${twoway}<br>`;
-	  }
-	  if (feature.properties.bollard_protected) {
-	    const bollardProtected = feature.properties.bollard_protected === '1' ? 'Yes' : 'No';
-	    popupContent += `<strong>Bollard Protected:</strong> ${bollardProtected}<br>`;
-	  }
-	  if (feature.properties.shape_length) {
-	    const shapeLengthKm = (parseFloat(feature.properties.shape_length) / 1000).toFixed(2);
-	    popupContent += `<strong>Lane Length:</strong> ${shapeLengthKm} km<br>`;
-	  }
-	  return popupContent;
-	}
-
-	// Load cycleways GeoJSON and add to map
-	function loadCycleways() {
-	  fetch("{% url 'cycleways_geojson' %}")
-	    .then(response => response.json())
-	    .then(data => {
-	      L.geoJSON(data, {
-	        style: cyclewayStyle,
-	        onEachFeature: function (feature, layer) {
-	          const popupContent = createPopupContent(feature);
-	          layer.bindPopup(popupContent);
-	        }
-	      }).addTo(map);
-	    })
-	    .catch(error => console.error('Error loading cycleways:', error));
-	}
-
-	// Update the map with user's location
-	function updateMap(latitude, longitude, accuracy) {
-	  let marker;
-	  if (marker) {
-	    map.removeLayer(marker);
-	  }
-	  marker = L.marker([latitude, longitude]).addTo(map);
-	  marker.bindPopup(`You are within ${accuracy} meters from this point`);
-	  loadCycleways();
-	}
-
-	// Update user's location
-	function updateLocation() {
-	  if (navigator.geolocation) {
-	    navigator.geolocation.getCurrentPosition(
-	      position => {
-	        const { latitude, longitude, accuracy } = position.coords;
-	        updateMap(latitude, longitude, accuracy);
-
-	        // Send location to Django view
-	        fetch('{% url "update_location" %}', {
-	          method: 'POST',
-	          headers: {
-	            'Content-Type': 'application/x-www-form-urlencoded',
-	            'X-CSRFToken': '{{csrf_token}}'
-	          },
-	          body: `latitude=${latitude}&longitude=${longitude}`
-	        })
-	          .then(response => response.json())
-	          .then(data => {
-	            if (data.status === 'success') {
-	              console.log('Location updated successfully');
-	            } else {
-	              console.error('Error updating location:', data.error);
-	            }
-	          })
-	          .catch(error => console.error('Fetch error:', error));
-	      },
-	      error => console.error('Error getting location:', error)
-	    );
-	  } else {
-	    console.error('Geolocation is not supported by this browser.');
-	  }
-	}
-
-    // Layer group to manage layers added by loadSelectedCategory
+    // Layer groups for managing map layers
+    const cyclewaysLayerGroup = L.layerGroup().addTo(map);
     const categoryLayerGroup = L.layerGroup().addTo(map);
 
-    // Load selected category on the map
-    function loadSelectedCategory() {
-      const selectedCategory = document.getElementById('amenities-dropdown').value;
-      let url = '';
+    // Style for cycleways
+    const cyclewayStyle = {
+        color: '#3388ff',
+        weight: 3,
+        opacity: 0.7
+    };
 
-      if (selectedCategory === 'parking_stands') {
-        url = "{% url 'parking_stands_geojson' %}";
-      } else if (selectedCategory === 'maintenance_stands') {
-        url = "{% url 'maintenance_stands_geojson' %}";
-      } else {
-        categoryLayerGroup.clearLayers();
-        return;
-      }
+    // Create popup content dynamically
+function createPopupContent(feature) {
+    let popupContent = '';
+    const props = feature.properties || {};
 
-      var greenIcon = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-        });
+    // Structured fields with specific formatting
+    if (props.featureID) {
+        popupContent += `<strong>Feature ID:</strong> ${props.featureID}<br>`;
+    }
+    if (props.name) {
+        popupContent += `<strong>Name:</strong> ${props.name !== 'undefined' ? props.name : 'No Name'}<br>`;
+    }
+    if (props.layer) {
+        popupContent += `<strong>Layer:</strong> ${props.layer}<br>`;
+    }
+    if (props.colour) {
+        popupContent += `<strong>Colour:</strong> ${props.colour}<br>`;
+    }
+    if (props.linetype) {
+        popupContent += `<strong>Line Type:</strong> ${props.linetype}<br>`;
+    }
+    if (props.refname) {
+        popupContent += `<strong>Reference Name:</strong> ${props.refname}<br>`;
+    }
+    if (props.description) {
+        popupContent += `<strong>Description:</strong> ${props.description}<br>`;
+    }
+    if (props.twoway) {
+        const twoway = props.twoway === '1' ? 'Yes' : 'No';
+        popupContent += `<strong>Two Way:</strong> ${twoway}<br>`;
+    }
+    if (props.bollard_protected) {
+        const bollardProtected = props.bollard_protected === '1' ? 'Yes' : 'No';
+        popupContent += `<strong>Bollard Protected:</strong> ${bollardProtected}<br>`;
+    }
+    if (props.shape_length) {
+        const shapeLengthKm = (parseFloat(props.shape_length) / 1000).toFixed(2);
+        popupContent += `<strong>Lane Length:</strong> ${shapeLengthKm} km<br>`;
+    }
+	if (props.location) {
+		popupContent += `<strong>Location:</strong> ${props.location}<br>`;
+	}
+	if (props.date_added) {
+		popupContent += `<strong>Date Added:</strong> ${props.date_added}<br>`;
+	}
+	if (props.area) {
+		popupContent += `<strong>Area:</strong> ${props.area}<br>`;
+	}
+	if (props.stand_type && props.stand_type.trim() !== '') {
+		popupContent += `<strong>Stand Type:</strong> ${props.stand_type}<br>`;
+	}
+    // Dynamically render any other fields
+    Object.entries(props).forEach(([key, value]) => {
+        // Skip fields that are already handled above or unwanted
+        if (![
+            'featureID', 'name', 'layer', 'colour', 'linetype', 
+            'refname', 'description', 'twoway', 'bollard_protected', 'shape_length',
+			'featureID_internal', 'location', 'date_added', 'area', 'public_stands',
+			'private_stands', 'stand_type', 'x', 'y'
+        ].includes(key)) {
+            popupContent += `<strong>${key}:</strong> ${value}<br>`;
+        }
+    });
 
+    return popupContent;
+}
 
-      if (url) {
-        fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            const redIcon = L.icon({
-              iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-red.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-              shadowSize: [41, 41]
-            });
-
-            const geoJsonLayer = L.geoJSON(data, {
-              pointToLayer: function (feature, latlng) {
-                return L.marker(latlng, { icon: greenIcon });
-              },
-              onEachFeature: function (feature, layer) {
-                const popupContent = createPopupContent(feature);
-                layer.bindPopup(popupContent);
-              }
-            });
-
-            // Clear existing layers in the categoryLayerGroup and add new layer
-            categoryLayerGroup.clearLayers();
-            categoryLayerGroup.addLayer(geoJsonLayer);
-          })
-          .catch(error => console.error(`Error loading ${selectedCategory}:`, error));
-      }
+    // Load GeoJSON data for a given endpoint
+    async function loadGeoJSON(endpoint, layerGroup, style = null) {
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}/`);
+            if (!response.ok) throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
+            const data = await response.json();
+            layerGroup.clearLayers();
+            L.geoJSON(data, {
+                style: style || undefined,
+                pointToLayer: (feature, latlng) => L.marker(latlng, { icon: createGreenMarkerIcon() }),
+                onEachFeature: (feature, layer) => layer.bindPopup(createPopupContent(feature))
+            }).addTo(layerGroup);
+        } catch (error) {
+            console.error(`Error loading ${endpoint}:`, error);
+        }
     }
 
+    // Load cycleways data
+    function loadCycleways() {
+        loadGeoJSON('cycleways', cyclewaysLayerGroup, cyclewayStyle);
+    }
 
-	// On document load, update the location and display
-	document.addEventListener('DOMContentLoaded', function () {
-	  {% if location %}
-	  const latitude = {{ location.y }};
-	  const longitude = {{ location.x }};
-	  updateMap(latitude, longitude, 0);
-	  {% else %}
-	  updateLocation();
-	  {% endif %}
-	});
+    // Load selected category from dropdown
+    function loadSelectedCategory() {
+        const selectedCategory = document.getElementById('amenities-dropdown').value;
+        const endpoints = {
+            parking_stands: 'parking-stands',
+            maintenance_stands: 'maintenance-stands'
+        };
+        const endpoint = endpoints[selectedCategory];
+        if (!endpoint) {
+            categoryLayerGroup.clearLayers();
+            return;
+        }
+        loadGeoJSON(endpoint, categoryLayerGroup);
+    }
+
+    // Update map with user's location
+    async function updateLocation() {
+        if (!navigator.geolocation) {
+            console.error('Geolocation is not supported by this browser.');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(async position => {
+            const { latitude, longitude, accuracy } = position.coords;
+            const marker = L.marker([latitude, longitude]).addTo(map);
+            marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+
+            try {
+                const csrfToken = '{{ csrf_token }}';
+                const response = await fetch(`${API_BASE}location/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ latitude, longitude })
+                });
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to update location');
+                }
+                console.log('Location updated successfully');
+            } catch (error) {
+                console.error('Error updating location:', error);
+            }
+        }, error => {
+            console.error('Error fetching location:', error);
+        });
+    }
+
+    // Create green marker icon
+    function createGreenMarkerIcon() {
+        return new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+    }
+
+    // On document load, initialize map with cycleways and user location
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCycleways();
+        updateLocation();
+    });
 </script>
 {% endblock %}

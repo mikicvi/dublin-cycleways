@@ -51,8 +51,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'map.apps.MapConfig',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -166,6 +176,8 @@ if os.getenv("DEPLOY_SECURE") == "True":
     DEBUG = False
     TEMPLATES[0]["OPTIONS"]["debug"] = False
     ALLOWED_HOSTS = ['*.dublin-cycleways.xyz', 'dublin-cycleways.xyz', 'localhost', '127.0.0.1']
+    ## disable browsable api
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ('rest_framework.renderers.JSONRenderer',) 
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
 else:
