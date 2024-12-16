@@ -13,7 +13,10 @@
 		<!-- Bootstrap CSS with Color Mode support -->
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 		<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+		/>
 		<style>
 			/* Navbar color schemes */
 			body[data-bs-theme='light'] #navbar {
@@ -35,6 +38,11 @@
 			body[data-bs-theme='dark'] {
 				background-color: #282c34;
 				color: #abb2bf;
+			}
+			.container {
+				@media (max-width: 576px) {
+					--bs-gutter-x: 0;
+				}
 			}
 		</style>
 		{% endblock stylesheets %}
@@ -83,14 +91,14 @@
 						{% endif %}
 						<li class="nav-item">
 							<button class="btn btn-secondary" id="theme-toggle">
-								<i class="fas fa-sun" id="theme-icon"></i>
+								<i class="bi bi-sun" id="theme-icon"></i>
 							</button>
 						</li>
 					</ul>
 				</div>
 			</div>
 		</nav>
-		<div class="container mt-4">{% block content %} {% endblock content %}</div>
+		<div class="container">{% block content %} {% endblock content %}</div>
 		<!-- Bootstrap and JS Dependencies -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 		<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -104,8 +112,8 @@
 				body.setAttribute('data-bs-theme', newTheme);
 				document.getElementById('navbar').setAttribute('data-bs-theme', newTheme);
 
-				themeIcon.classList.toggle('fa-sun', newTheme === 'light');
-				themeIcon.classList.toggle('fa-moon', newTheme === 'dark');
+				themeIcon.classList.toggle('bi-sun', newTheme === 'light');
+				themeIcon.classList.toggle('bi-moon', newTheme === 'dark');
 				localStorage.setItem('theme', newTheme);
 			}
 
@@ -117,7 +125,7 @@
 				document.getElementById('navbar').setAttribute('data-bs-theme', savedTheme);
 
 				const themeIcon = document.getElementById('theme-icon');
-				themeIcon.classList.add(savedTheme === 'light' ? 'fa-sun' : 'fa-moon');
+				themeIcon.classList.add(savedTheme === 'light' ? 'bi-sun' : 'bi-moon');
 			});
 		</script>
 		{% block extra_js %} {% endblock extra_js %}
