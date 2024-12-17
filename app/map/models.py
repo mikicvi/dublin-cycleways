@@ -132,6 +132,40 @@ class CyclewaysDublinMetro(models.Model):
     def __str__(self):
         return f"{self.featureID} - {self.name} - {self.twoway} - {self.bollard_protected}"
 
+class YellowCyclingInfrastructure(models.Model):
+    """Model definition for Yellow Cycling Infrastructure - Non segregated - Dublin County.
+    """
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+    
+    def __str__(self):
+        return f"{self.name or 'Unnamed'}"
+    
+class RedCyclingInfrastructure(models.Model):
+    """Model definition for Red Cycling Infrastructure - No cycling infrastructure - Dublin County.
+    """
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+    
+    def __str__(self):
+        return f"{self.name or 'Unnamed'}"
+
+class CountyRoad(models.Model):
+    """Model for all public roads in Dublin County."""
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+
+    def __str__(self):
+        return self.name or "Unnamed Road"
+
+class CountyCycleway(models.Model):
+    """Model for all cycleways in Dublin County."""
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+
+    def __str__(self):
+        return self.name or "Unnamed Cycleway"
+    
 
 # # User Profile model
 User = get_user_model()

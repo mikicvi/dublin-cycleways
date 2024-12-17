@@ -4,10 +4,12 @@ from map.models import(
 BicycleMaintenanceStandSDCC, 
 BicycleParkingStandSDCC, 
 BikeMaintenanceStandFCC, 
-BikeMaintenanceStandDLR, 
+BikeMaintenanceStandDLR,
 CyclewaysSDCC,
 CyclewaysDublinMetro,
-DublinCityParkingStand
+DublinCityParkingStand,
+RedCyclingInfrastructure,
+YellowCyclingInfrastructure
 )
 
 
@@ -116,7 +118,24 @@ datasets = [
             'fee': 'fee',
             'geometry': 'POINT',
         }
+    },
+    {
+        'model': RedCyclingInfrastructure,
+        'geojson_path': Path(__file__).resolve().parent / 'exports' / 'red_infrastructure.geojson',
+        'mapping': {
+            'name': 'name',
+            'geometry': 'MultiLineString',
+        }
+    },
+    {
+        'model': YellowCyclingInfrastructure,
+        'geojson_path': Path(__file__).resolve().parent / 'exports' / 'yellow_infrastructure.geojson',
+        'mapping': {
+            'name': 'name',
+            'geometry': 'MultiLineString',
+        }
     }
+    
 ]
 
 def run(verbose=True):

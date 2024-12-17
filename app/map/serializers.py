@@ -8,7 +8,9 @@ from .models import (
     BicycleMaintenanceStandSDCC,
     BikeMaintenanceStandFCC,
     BikeMaintenanceStandDLR,
-    DublinCityParkingStand
+    DublinCityParkingStand,
+    RedCyclingInfrastructure, 
+    YellowCyclingInfrastructure
 )
 
 
@@ -115,5 +117,31 @@ def serialize_bike_maintenance_stands_dlr():
         BikeMaintenanceStandDLR.objects.all(),
         geometry_field='geometry',
         fields=['featureID', 'featureID_internal', 'maintenance_point', 'covered', 'confirmed'],
+    )
+    return json.loads(data)
+
+
+def serialize_red_cycling_infrastructure():
+    """
+    Serialize RedCyclingInfrastructure to GeoJSON.
+    """
+    data = serialize(
+        'geojson',
+        RedCyclingInfrastructure.objects.all(),
+        geometry_field='geometry',
+        fields=['name'],
+    )
+    return json.loads(data)
+
+
+def serialize_yellow_cycling_infrastructure():
+    """
+    Serialize YellowCyclingInfrastructure to GeoJSON.
+    """
+    data = serialize(
+        'geojson',
+        YellowCyclingInfrastructure.objects.all(),
+        geometry_field='geometry',
+        fields=['name'],
     )
     return json.loads(data)

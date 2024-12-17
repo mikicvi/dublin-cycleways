@@ -5,12 +5,6 @@
 		position: relative;
 		height: calc(100vh - 120px);
 	}
-	@media (max-width: 576px) {
-		#map {
-			height: calc(100vh - 120px);
-			width: 100%;
-		}
-	}
 	#dropdown-container {
 		z-index: 1000; /* Ensure the dropdown is above the map tiles */
 		width: auto;
@@ -45,10 +39,8 @@
 	}
 	#legend {
 		position: absolute;
-		bottom: 10px;
-		left: 50px;
-		background-color: rgba(255, 255, 255, 0.75);
-		border: 1px solid #ddd;
+		bottom: 0px;
+		left: 40px;
 		border-radius: 5px;
 		padding: 10px;
 		font-size: 14px;
@@ -59,11 +51,41 @@
 		margin-bottom: 10px;
 		font-size: 16px;
 	}
+	#layer-control {
+		position: absolute;
+		bottom: 0px;
+		right: 35px;
+		z-index: 1000;
+		padding: 10px;
+		font-size: 14px;
+		width: 275px;
+	}
+
+	#layer-button {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+		z-index: 1000;
+		border-radius: 5px;
+	}
 	.collapse-horizontal,
 	.collapsing,
 	.show,
-	.collapse {
-		z-index: 1050 !important;
+	.collapse,
+	.card .card-body {
+		z-index: 1000;
+	}
+	.collapse-horizontal {
+		transition: width 0.35s ease; /* Smooth animation */
+		overflow: hidden;
+		opacity: 1; /* Start fully visible */
+	}
+
+	#legend.collapsing,
+	#layer-control.collapsing {
+		width: 0 !important;
+		opacity: 0; /* Hide content smoothly */
+		transition: width 0.35s ease;
 	}
 </style>
 
@@ -94,6 +116,15 @@
 			aria-controls="legend"
 		></button>
 	</div>
+	<button
+		id="layer-button"
+		class="bi bi-layers btn btn-light"
+		type="button"
+		data-bs-toggle="collapse"
+		data-bs-target="#layer-control"
+		aria-expanded="false"
+		aria-controls="layer-control"
+	></button>
 	<!-- Collapsible Legend -->
 	<div id="legend" class="collapse collapse-horizontal">
 		<div class="card card-body" style="width: 250px; background-color: rgba(255, 255, 255, 0.8)">
@@ -101,6 +132,26 @@
 			<p><span style="color: #3388ff">●</span> Segregated Cycling Infrastructure</p>
 			<p><span style="color: #26ad24">●</span> Parking & Maintenance Stands</p>
 			<p><span style="color: #cb852c">●</span> Cycling Services - Live API data</p>
+		</div>
+	</div>
+	<!-- Collapsible Layer Control -->
+	<div id="layer-control" class="collapse collapse-horizontal">
+		<div class="card card-body" style="width: 250px; background-color: rgba(255, 255, 255, 0.8)">
+			<h5>Map Layers</h5>
+			<form>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" value="" id="cyclewaysLayer" checked />
+					<label class="form-check-label" for="cyclewaysLayer"> 🔵 Segregated Cycleways </label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" value="" id="yellowInfrastructureLayer" />
+					<label class="form-check-label" for="yellowInfrastructureLayer"> 🟡 Shared Cycleways </label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" value="" id="redInfrastructureLayer" />
+					<label class="form-check-label" for="redInfrastructureLayer"> 🔴 No Cycleways </label>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -119,14 +170,14 @@
 
 	// Layer groups for managing map layers
 	const cyclewaysLayerGroup = L.layerGroup().addTo(map);
+	const redInfrastructureLayerGroup = L.layerGroup().addTo(map);
+	const yellowInfrastructureLayerGroup = L.layerGroup().addTo(map);
 	const categoryLayerGroup = L.markerClusterGroup().addTo(map);
 
-	// Style for cycleways
-	const cyclewayStyle = {
-		color: '#3388ff',
-		weight: 4,
-		opacity: 0.8,
-	};
+	// Styles for infrastructure
+	const cyclewayStyle = { color: '#3388ff', weight: 4, opacity: 0.8 };
+	const redInfrastructureStyle = { color: 'red', weight: 3, opacity: 0.8 };
+	const yellowInfrastructureStyle = { color: '#ffd003', weight: 3, opacity: 0.9 };
 
 	// Create popup content dynamically
 	function createPopupContent(feature) {
@@ -180,6 +231,7 @@
 			if (!response.ok) throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
 			const data = await response.json();
 			layerGroup.clearLayers();
+
 			L.geoJSON(data, {
 				style: style || undefined,
 				pointToLayer: (feature, latlng) => L.marker(latlng, { icon: createMarkerIcon(style) }),
@@ -190,21 +242,28 @@
 		}
 	}
 
-	// Load cycleways data
+	// Load cycleways and infrastructure
 	async function loadCycleways() {
 		await loadGeoJSON('cycleways', cyclewaysLayerGroup, cyclewayStyle);
 	}
+	async function loadRedInfrastructure() {
+		await loadGeoJSON('red-cycling-infrastructure', redInfrastructureLayerGroup, redInfrastructureStyle);
+	}
+	async function loadYellowInfrastructure() {
+		await loadGeoJSON('yellow-cycling-infrastructure', yellowInfrastructureLayerGroup, yellowInfrastructureStyle);
+	}
 
-	// Load selected category from dropdown
+	// Dropdown event handler
 	async function loadSelectedCategory() {
 		const selectedCategory = document.getElementById('amenities-dropdown').value;
 		const endpoints = {
 			parking_stands: 'parking-stands',
 			maintenance_stands: 'maintenance-stands',
 			dublin_bikes: 'dublin-bikes',
-			default: 'cycleways',
 		};
+
 		const endpoint = endpoints[selectedCategory];
+		categoryLayerGroup.clearLayers();
 		// Clear clusters if no selection
 		if (!endpoint) {
 			markerClusterGroup.clearLayers();
@@ -295,11 +354,53 @@
 		}
 	}
 
-	// On document load, initialize map with cycleways and user location
+	// On document load, initialize map with cycleways, user location and service worker
 	document.addEventListener('DOMContentLoaded', async () => {
+		// Initialize Segregated Cycleways (always loaded)
 		await loadCycleways();
 		await updateLocation();
 		await registerServiceWorker();
+		// Layer visibility control
+		const cyclewaysCheckbox = document.getElementById('cyclewaysLayer');
+		const redCheckbox = document.getElementById('redInfrastructureLayer');
+		const yellowCheckbox = document.getElementById('yellowInfrastructureLayer');
+
+		// Flags to track if data is already loaded
+		let redInfrastructureLoaded = false;
+		let yellowInfrastructureLoaded = false;
+
+		// Event listeners for toggling layers
+		cyclewaysCheckbox.addEventListener('change', () => {
+			if (cyclewaysCheckbox.checked) {
+				map.addLayer(cyclewaysLayerGroup);
+			} else {
+				map.removeLayer(cyclewaysLayerGroup);
+			}
+		});
+
+		redCheckbox.addEventListener('change', async () => {
+			if (redCheckbox.checked) {
+				if (!redInfrastructureLoaded) {
+					await loadRedInfrastructure();
+					redInfrastructureLoaded = true;
+				}
+				map.addLayer(redInfrastructureLayerGroup);
+			} else {
+				map.removeLayer(redInfrastructureLayerGroup);
+			}
+		});
+
+		yellowCheckbox.addEventListener('change', async () => {
+			if (yellowCheckbox.checked) {
+				if (!yellowInfrastructureLoaded) {
+					await loadYellowInfrastructure();
+					yellowInfrastructureLoaded = true;
+				}
+				map.addLayer(yellowInfrastructureLayerGroup);
+			} else {
+				map.removeLayer(yellowInfrastructureLayerGroup);
+			}
+		});
 	});
 </script>
 {% endblock %}

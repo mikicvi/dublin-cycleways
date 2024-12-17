@@ -17,7 +17,9 @@ from .serializers import (
     serialize_bicycle_maintenance_stands_sdcc,
     serialize_bike_maintenance_stands_fcc,
     serialize_bike_maintenance_stands_dlr,
-    serialize_dublin_city_parking_stands
+    serialize_dublin_city_parking_stands,
+    serialize_red_cycling_infrastructure,
+    serialize_yellow_cycling_infrastructure
 )
 from .adapters import (
     fetch__dublin_bikes_geojson,
@@ -106,6 +108,24 @@ class CyclewaysGeoJSONView(APIView):
         }
 
         return Response(combined_geojson)
+    
+
+# Red Cycling Infrastructure GeoJSON API
+class RedCyclingInfrastructureGeoJSONView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        red_geojson = serialize_red_cycling_infrastructure()
+        return Response(red_geojson)
+
+
+# Yellow Cycling Infrastructure GeoJSON API
+class YellowCyclingInfrastructureGeoJSONView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        yellow_geojson = serialize_yellow_cycling_infrastructure()
+        return Response(yellow_geojson)
 
 # Parking Stands GeoJSON API
 class ParkingStandsGeoJSONView(APIView):

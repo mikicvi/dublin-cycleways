@@ -1,12 +1,13 @@
 from django.urls import path
 from .views import (
-    LoginView, LogoutView,LogoutRedirectView, UpdateLocationView,
+    LoginView, LogoutView,LogoutRedirectView, RedCyclingInfrastructureGeoJSONView, UpdateLocationView,
     CyclewaysGeoJSONView, ParkingStandsGeoJSONView, MaintenanceStandsGeoJSONView,
     UserLocationView, LoginTemplateView, MapTemplateView, OfflineTemplateView,
-    CheckAuthView, root_view, DublinBikesGeoJSONView
+    CheckAuthView, YellowCyclingInfrastructureGeoJSONView, root_view, DublinBikesGeoJSONView
 )
 
 urlpatterns = [
+    # API endpoints
     path('api/login/', LoginView.as_view(), name='api-login'),
     path('api/logout/', LogoutRedirectView.as_view(), name='api-logout'),
     path('api/location/', UpdateLocationView.as_view(), name='api-update-location'),
@@ -16,6 +17,9 @@ urlpatterns = [
     path('api/user-location/', UserLocationView.as_view(), name='api-user-location'),
     path('api/auth-check/', CheckAuthView.as_view(), name='auth-check'),
     path('api/dublin-bikes/',DublinBikesGeoJSONView.as_view(), name='dublin-bikes'),
+    path('api/red-cycling-infrastructure/', RedCyclingInfrastructureGeoJSONView.as_view(), name='red-cycling-geojson'),
+    path('api/yellow-cycling-infrastructure/', YellowCyclingInfrastructureGeoJSONView.as_view(), name='yellow-cycling-geojson'),
+
     
     # Template endpoints
     path('login/', LoginTemplateView.as_view(), name='login'),
