@@ -231,6 +231,9 @@
 				const marker = L.marker([latitude, longitude]).addTo(map);
 				marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
 
+				// Center map on user's location and zoom in
+				map.setView([latitude, longitude], 14);
+
 				try {
 					const csrfToken = '{{ csrf_token }}';
 					const response = await fetch(`${API_BASE}location/`, {
