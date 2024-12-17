@@ -17,7 +17,9 @@ from .serializers import (
     serialize_bike_maintenance_stands_fcc,
     serialize_bike_maintenance_stands_dlr,
 )
-import json
+from .adapters import (
+    fetch__dublin_bikes_geojson,
+)
 from django.shortcuts import render
 from django.views import View
 
@@ -127,6 +129,16 @@ class MaintenanceStandsGeoJSONView(APIView):
 
         return Response(combined_geojson)
     
+# Dublin Bikes Live GeoJSON API
+class DublinBikesGeoJSONView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+            data = fetch__dublin_bikes_geojson()
+            if 'Error' in data:
+                return Response(data, status=500)
+            return Response(data)
+        
 # Check Auth API
 class CheckAuthView(APIView):
     permission_classes = [IsAuthenticated]

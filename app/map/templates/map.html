@@ -73,8 +73,9 @@
 	<div id="dropdown-container" class="position-absolute top-0 start-50 translate-middle-x mt-3">
 		<select id="amenities-dropdown" class="form-select w-100" onchange="loadSelectedCategory()">
 			<option value="">Select an amenity</option>
-			<option value="parking_stands">🚲 Parking Stands</option>
+			<option value="parking_stands">🅿️ Parking Stands</option>
 			<option value="maintenance_stands">🔧 Maintenance Stands</option>
+			<option value="dublin_bikes">🚲 Dublin Bikes</option>
 		</select>
 	</div>
 	<div id="button-group" class="btn-group-vertical">
@@ -98,7 +99,8 @@
 		<div class="card card-body" style="width: 250px; background-color: rgba(255, 255, 255, 0.8)">
 			<h5>Map Legend</h5>
 			<p><span style="color: #3388ff">●</span> Segregated Cycling Infrastructure</p>
-			<p><span style="color: green">●</span> Parking & Maintenance Stands</p>
+			<p><span style="color: #26ad24">●</span> Parking & Maintenance Stands</p>
+			<p><span class="color: #cb852c">●</span> Cycling Services - Live API data</p>
 		</div>
 	</div>
 </div>
@@ -219,7 +221,7 @@
 			layerGroup.clearLayers();
 			L.geoJSON(data, {
 				style: style || undefined,
-				pointToLayer: (feature, latlng) => L.marker(latlng, { icon: createGreenMarkerIcon() }),
+				pointToLayer: (feature, latlng) => L.marker(latlng, { icon: createMarkerIcon(style) }),
 				onEachFeature: (feature, layer) => layer.bindPopup(createPopupContent(feature)),
 			}).addTo(layerGroup);
 		} catch (error) {
@@ -235,16 +237,22 @@
 	// Load selected category from dropdown
 	async function loadSelectedCategory() {
 		const selectedCategory = document.getElementById('amenities-dropdown').value;
+		let categoryStyle = 'green';
 		const endpoints = {
 			parking_stands: 'parking-stands',
 			maintenance_stands: 'maintenance-stands',
+			dublin_bikes: 'dublin-bikes',
 		};
 		const endpoint = endpoints[selectedCategory];
 		if (!endpoint) {
 			categoryLayerGroup.clearLayers();
 			return;
 		}
-		await loadGeoJSON(endpoint, categoryLayerGroup);
+		if (endpoint === 'dublin-bikes') {
+			categoryStyle = 'orange';
+		}
+
+		await loadGeoJSON(endpoint, categoryLayerGroup, categoryStyle);
 	}
 
 	// Update map with user's location
@@ -285,10 +293,11 @@
 		);
 	}
 
-	// Create green marker icon
-	function createGreenMarkerIcon() {
+	// Create marker icon with specified color - Green or Orange
+	function createMarkerIcon(colour) {
+		const iconUrl = `{% static 'img/marker-icon-2x-' %}${colour}.png`;
 		return new L.Icon({
-			iconUrl: "{% static 'img/marker-icon-2x-green.png' %}",
+			iconUrl: iconUrl,
 			shadowUrl: "{% static 'img/marker-shadow.png' %}",
 			iconSize: [25, 41],
 			iconAnchor: [12, 41],

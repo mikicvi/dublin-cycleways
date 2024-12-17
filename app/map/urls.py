@@ -3,7 +3,7 @@ from .views import (
     LoginView, LogoutView,LogoutRedirectView, UpdateLocationView,
     CyclewaysGeoJSONView, ParkingStandsGeoJSONView, MaintenanceStandsGeoJSONView,
     UserLocationView, LoginTemplateView, MapTemplateView, OfflineTemplateView,
-    CheckAuthView, root_view
+    CheckAuthView, root_view, DublinBikesGeoJSONView
 )
 
 urlpatterns = [
@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/maintenance-stands/', MaintenanceStandsGeoJSONView.as_view(), name='api-maintenance-stands'),
     path('api/user-location/', UserLocationView.as_view(), name='api-user-location'),
     path('api/auth-check/', CheckAuthView.as_view(), name='auth-check'),
+    path('api/dublin-bikes/',DublinBikesGeoJSONView.as_view(), name='dublin-bikes'),
     
     # Template endpoints
     path('login/', LoginTemplateView.as_view(), name='login'),
