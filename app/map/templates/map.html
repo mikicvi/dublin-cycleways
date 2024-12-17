@@ -6,8 +6,9 @@
 		height: calc(100vh - 120px);
 	}
 	#dropdown-container {
-		z-index: 1000; /* Ensure the dropdown is above the map tiles */
+		z-index: 1000;
 		width: auto;
+		max-height: fit-content;
 		top: 10px;
 		left: 10px;
 		right: 10px;
@@ -21,6 +22,7 @@
 	@media (max-width: 576px) {
 		#dropdown-container {
 			width: auto;
+			max-height: fit-content;
 			top: auto;
 			left: 10px;
 			right: auto;
@@ -89,7 +91,7 @@
 	}
 </style>
 
-<h3 class="text-center">Dublin Safe Cycling Map</h3>
+<h3 class="text-center pt-2">Dublin Safe Cycling Map</h3>
 
 <div id="map" class="position-relative">
 	<div id="dropdown-container" class="position-absolute top-0 start-50 translate-middle-x mt-3">
