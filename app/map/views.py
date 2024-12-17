@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.core.cache import cache
+from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.gis.geos import Point
 from .models import (
@@ -16,6 +17,7 @@ from .serializers import (
     serialize_bicycle_maintenance_stands_sdcc,
     serialize_bike_maintenance_stands_fcc,
     serialize_bike_maintenance_stands_dlr,
+    serialize_dublin_city_parking_stands
 )
 from .adapters import (
     fetch__dublin_bikes_geojson,
@@ -110,8 +112,14 @@ class ParkingStandsGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        geojson_data = serialize_bicycle_parking_stands_sdcc()
-        return Response(geojson_data)
+        sdcc_parking_features = serialize_bicycle_parking_stands_sdcc()['features']
+        dcc_parking_features = serialize_dublin_city_parking_stands()['features']
+        
+        combined_geojson = {
+            'type': 'FeatureCollection',
+            'features': sdcc_parking_features + dcc_parking_features,
+        }
+        return Response(combined_geojson)
 
 # Maintenance Stands GeoJSON API
 class MaintenanceStandsGeoJSONView(APIView):
@@ -155,14 +163,14 @@ class LoginTemplateView(View):
 
 class MapTemplateView(View):
     def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('login')
         return render(request, 'map.html')
 
 class OfflineTemplateView(View):
     def get(self, request):
         return render(request, 'offline.html')
 
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 def root_view(request):
     if request.user.is_authenticated:
         return redirect('map')  # Redirect to the map

@@ -8,6 +8,7 @@ from .models import (
     BicycleMaintenanceStandSDCC,
     BikeMaintenanceStandFCC,
     BikeMaintenanceStandDLR,
+    DublinCityParkingStand
 )
 
 
@@ -48,7 +49,27 @@ def serialize_bicycle_parking_stands_sdcc():
         fields=['featureID', 'featureID_internal', 'x', 'y', 'area', 'location'],
     )
     return json.loads(data)
+import json
 
+def serialize_dublin_city_parking_stands():
+    """
+    Serialize DublinCityParkingStand to GeoJSON.
+    """
+    data = serialize(
+        'geojson',
+        DublinCityParkingStand.objects.all(),
+        geometry_field='geometry',
+        fields=[
+            'osm_id',
+            'bicycle_parking',
+            'covered',
+            'capacity',
+            'surveillance',
+            'website',
+            'fee',
+        ],
+    )
+    return json.loads(data)
 
 def serialize_bicycle_maintenance_stands_sdcc():
     """

@@ -72,7 +72,7 @@
 <div id="map" class="position-relative">
 	<div id="dropdown-container" class="position-absolute top-0 start-50 translate-middle-x mt-3">
 		<select id="amenities-dropdown" class="form-select w-100" onchange="loadSelectedCategory()">
-			<option value="">Select an amenity</option>
+			<option value="default">Select an amenity</option>
 			<option value="parking_stands">🅿️ Parking Stands</option>
 			<option value="maintenance_stands">🔧 Maintenance Stands</option>
 			<option value="dublin_bikes">🚲 Dublin Bikes</option>
@@ -100,7 +100,7 @@
 			<h5>Map Legend</h5>
 			<p><span style="color: #3388ff">●</span> Segregated Cycling Infrastructure</p>
 			<p><span style="color: #26ad24">●</span> Parking & Maintenance Stands</p>
-			<p><span class="color: #cb852c">●</span> Cycling Services - Live API data</p>
+			<p><span style="color: #cb852c">●</span> Cycling Services - Live API data</p>
 		</div>
 	</div>
 </div>
@@ -119,92 +119,53 @@
 
 	// Layer groups for managing map layers
 	const cyclewaysLayerGroup = L.layerGroup().addTo(map);
-	const categoryLayerGroup = L.layerGroup().addTo(map);
+	const categoryLayerGroup = L.markerClusterGroup().addTo(map);
 
 	// Style for cycleways
 	const cyclewayStyle = {
 		color: '#3388ff',
-		weight: 3,
-		opacity: 0.7,
+		weight: 4,
+		opacity: 0.8,
 	};
 
 	// Create popup content dynamically
 	function createPopupContent(feature) {
-		let popupContent = '';
 		const props = feature.properties || {};
+		const fields = [
+			{ key: 'featureID', label: 'Feature ID' },
+			{ key: 'name', label: 'Name', formatter: (v) => (v !== 'undefined' ? v : 'No Name') },
+			{ key: 'layer', label: 'Layer' },
+			{ key: 'colour', label: 'Colour' },
+			{ key: 'linetype', label: 'Line Type' },
+			{ key: 'refname', label: 'Reference Name' },
+			{ key: 'description', label: 'Description' },
+			{ key: 'twoway', label: 'Two Way', formatter: (v) => (v === '1' ? 'Yes' : 'No') },
+			{ key: 'bollard_protected', label: 'Bollard Protected', formatter: (v) => (v === '1' ? 'Yes' : 'No') },
+			{ key: 'shape_length', label: 'Lane Length', formatter: (v) => `${(parseFloat(v) / 1000).toFixed(2)} km` },
+			{ key: 'location', label: 'Location' },
+			{ key: 'date_added', label: 'Date Added' },
+			{ key: 'area', label: 'Area' },
+			{ key: 'stand_type', label: 'Stand Type' },
+			{ key: 'bicycle_parking', label: 'Bicycle Parking Type' },
+			{ key: 'covered', label: 'Is Sheltered?' },
+			{ key: 'capacity', label: 'Bicycle Capacity' },
+		];
 
-		// Structured fields with specific formatting
-		if (props.featureID) {
-			popupContent += `<strong>Feature ID:</strong> ${props.featureID}<br>`;
-		}
-		if (props.name) {
-			popupContent += `<strong>Name:</strong> ${props.name !== 'undefined' ? props.name : 'No Name'}<br>`;
-		}
-		if (props.layer) {
-			popupContent += `<strong>Layer:</strong> ${props.layer}<br>`;
-		}
-		if (props.colour) {
-			popupContent += `<strong>Colour:</strong> ${props.colour}<br>`;
-		}
-		if (props.linetype) {
-			popupContent += `<strong>Line Type:</strong> ${props.linetype}<br>`;
-		}
-		if (props.refname) {
-			popupContent += `<strong>Reference Name:</strong> ${props.refname}<br>`;
-		}
-		if (props.description) {
-			popupContent += `<strong>Description:</strong> ${props.description}<br>`;
-		}
-		if (props.twoway) {
-			const twoway = props.twoway === '1' ? 'Yes' : 'No';
-			popupContent += `<strong>Two Way:</strong> ${twoway}<br>`;
-		}
-		if (props.bollard_protected) {
-			const bollardProtected = props.bollard_protected === '1' ? 'Yes' : 'No';
-			popupContent += `<strong>Bollard Protected:</strong> ${bollardProtected}<br>`;
-		}
-		if (props.shape_length) {
-			const shapeLengthKm = (parseFloat(props.shape_length) / 1000).toFixed(2);
-			popupContent += `<strong>Lane Length:</strong> ${shapeLengthKm} km<br>`;
-		}
-		if (props.location) {
-			popupContent += `<strong>Location:</strong> ${props.location}<br>`;
-		}
-		if (props.date_added) {
-			popupContent += `<strong>Date Added:</strong> ${props.date_added}<br>`;
-		}
-		if (props.area) {
-			popupContent += `<strong>Area:</strong> ${props.area}<br>`;
-		}
-		if (props.stand_type && props.stand_type.trim() !== '') {
-			popupContent += `<strong>Stand Type:</strong> ${props.stand_type}<br>`;
-		}
-		// Dynamically render any other fields
+		// Add structured fields
+		let popupContent = fields
+			.filter(({ key }) => props[key])
+			.map(
+				({ key, label, formatter }) =>
+					`<strong>${label}:</strong> ${formatter ? formatter(props[key]) : props[key]}<br>`
+			)
+			.join('');
+
+		// Add any other dynamic fields
+		const excludedKeys = fields
+			.map((f) => f.key)
+			.concat(['featureID_internal', 'x', 'y', 'public_stands', 'private_stands', 'osm_id']);
 		Object.entries(props).forEach(([key, value]) => {
-			// Skip fields that are already handled above or unwanted
-			if (
-				![
-					'featureID',
-					'name',
-					'layer',
-					'colour',
-					'linetype',
-					'refname',
-					'description',
-					'twoway',
-					'bollard_protected',
-					'shape_length',
-					'featureID_internal',
-					'location',
-					'date_added',
-					'area',
-					'public_stands',
-					'private_stands',
-					'stand_type',
-					'x',
-					'y',
-				].includes(key)
-			) {
+			if (!excludedKeys.includes(key) && value && value.toString().trim()) {
 				popupContent += `<strong>${key}:</strong> ${value}<br>`;
 			}
 		});
@@ -237,21 +198,23 @@
 	// Load selected category from dropdown
 	async function loadSelectedCategory() {
 		const selectedCategory = document.getElementById('amenities-dropdown').value;
-		let categoryStyle = 'green';
 		const endpoints = {
 			parking_stands: 'parking-stands',
 			maintenance_stands: 'maintenance-stands',
 			dublin_bikes: 'dublin-bikes',
+			default: 'cycleways',
 		};
 		const endpoint = endpoints[selectedCategory];
+		// Clear clusters if no selection
 		if (!endpoint) {
-			categoryLayerGroup.clearLayers();
+			markerClusterGroup.clearLayers();
 			return;
 		}
-		if (endpoint === 'dublin-bikes') {
-			categoryStyle = 'orange';
-		}
 
+		// Define marker color
+		const categoryStyle = endpoint === 'dublin-bikes' ? 'orange' : 'green';
+
+		// Load the selected category with clustering
 		await loadGeoJSON(endpoint, categoryLayerGroup, categoryStyle);
 	}
 
@@ -299,10 +262,10 @@
 		return new L.Icon({
 			iconUrl: iconUrl,
 			shadowUrl: "{% static 'img/marker-shadow.png' %}",
-			iconSize: [25, 41],
-			iconAnchor: [12, 41],
-			popupAnchor: [1, -34],
-			shadowSize: [41, 41],
+			iconSize: [19, 31],
+			iconAnchor: [9, 31],
+			popupAnchor: [0.75, -25.5],
+			shadowSize: [31, 31],
 		});
 	}
 

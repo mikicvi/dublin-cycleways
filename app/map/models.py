@@ -36,6 +36,25 @@ class BicycleParkingStandSDCC(models.Model):
         return f"{self.location} - {self.status} - {self.senior_stand} - {self.junior_stand}"
 
 
+class DublinCityParkingStand(models.Model):
+    """
+    Model for bicycle parking stands in Dublin City.
+    """
+    # Basic Fields
+    osm_id = models.CharField(max_length=100, unique=True)  # From "id" field
+    bicycle_parking = models.CharField(max_length=50, null=True, blank=True)
+    covered = models.CharField(max_length=10, null=True, blank=True)
+    capacity = models.CharField(max_length=5, null=True, blank=True)
+    surveillance = models.CharField(max_length=10, null=True, blank=True)
+    website = models.URLField(max_length=255, null=True, blank=True)
+    fee = models.CharField(max_length=10, null=True, blank=True)
+
+    # Geometry Field
+    geometry = models.PointField()
+
+    def __str__(self):
+        return f"Parking Stand {self.osm_id} - {self.capacity or 'Unknown'}"
+    
 class BikeMaintenanceStandFCC(models.Model):
     """Model definition for Bicycle maintenance stands from Fingal County Council.
     """
