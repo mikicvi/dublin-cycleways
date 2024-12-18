@@ -22,7 +22,8 @@ from .serializers import (
     serialize_yellow_cycling_infrastructure
 )
 from .adapters import (
-    fetch__dublin_bikes_geojson,
+    fetch_general_bikes_geojson,
+    fetch_dublin_bikes_geojson,
 )
 from django.shortcuts import render
 from django.views import View
@@ -181,11 +182,30 @@ class DublinBikesGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-            data = fetch__dublin_bikes_geojson()
+            data = fetch_dublin_bikes_geojson()
             if 'Error' in data:
                 return Response(data, status=500)
             return Response(data)
-        
+
+# Bleeper Bikes Live GeoJSON API
+class BleeperBikesGeoJSONView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        data = fetch_general_bikes_geojson('https://data.smartdublin.ie/bleeperbike-api/bikes/bleeper_bikes/current/bikes.geojson')
+        if 'Error' in data:
+            return Response(data, status=500)
+        return Response(data)
+
+# Moby Bikes Live GeoJSON API
+class MobyBikesGeoJSONView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        data = fetch_general_bikes_geojson('https://data.smartdublin.ie/mobybikes-api/bikes/mobymoby_dublin/current/bikes.geojson')
+        if 'Error' in data:
+            return Response(data, status=500)
+        return Response(data)
 # Check Auth API
 class CheckAuthView(APIView):
     permission_classes = [IsAuthenticated]

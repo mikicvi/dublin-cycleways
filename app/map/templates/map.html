@@ -100,6 +100,8 @@
 			<option value="parking_stands">🅿️ Parking Stands</option>
 			<option value="maintenance_stands">🔧 Maintenance Stands</option>
 			<option value="dublin_bikes">🚲 Dublin Bikes</option>
+			<option value="bleeper_bikes">🚴 Bleeper Bikes</option>
+			<option value="moby_bikes">⚡️🚲 Moby Bikes</option>
 		</select>
 	</div>
 	<div id="button-group" class="btn-group-vertical">
@@ -262,6 +264,8 @@
 			parking_stands: 'parking-stands',
 			maintenance_stands: 'maintenance-stands',
 			dublin_bikes: 'dublin-bikes',
+			bleeper_bikes: 'bleeper-bikes',
+			moby_bikes: 'moby-bikes',
 		};
 
 		const endpoint = endpoints[selectedCategory];
@@ -273,7 +277,7 @@
 		}
 
 		// Define marker color
-		const categoryStyle = endpoint === 'dublin-bikes' ? 'orange' : 'green';
+		const categoryStyle = ['dublin-bikes', 'bleeper-bikes', 'moby-bikes'].includes(endpoint) ? 'orange' : 'green';
 
 		// Load the selected category with clustering
 		await loadGeoJSON(endpoint, categoryLayerGroup, categoryStyle);

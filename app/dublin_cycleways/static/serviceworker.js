@@ -58,7 +58,7 @@ self.addEventListener('fetch', (event) => {
                 if (response) {
                     const cachedTimestamp = response.headers.get('sw-cache-timestamp');
                     const now = Date.now();
-                    const isLiveData = event.request.url.includes('/api/dublin-bikes/');
+                    const isLiveData = ['/api/dublin-bikes/', '/api/bleeper-bikes/', '/api/moby-bikes/'].some((path) => event.request.url.includes(path));
                     const cacheLifetime = isLiveData ? CACHE_LIFETIME_LIVE : CACHE_LIFETIME;
 
                     if (cachedTimestamp && (now - parseInt(cachedTimestamp, 10)) > cacheLifetime) {
