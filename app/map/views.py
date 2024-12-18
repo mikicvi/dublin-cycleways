@@ -57,6 +57,25 @@ class LogoutRedirectView(View):
         logout(request)
         return redirect('/login/')
 
+# Register API
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        if username and email and password:
+            if User.objects.filter(username=username).exists():
+                return Response({'error': 'Username already exists'}, status=400)
+            if User.objects.filter(email=email).exists():
+                return Response({'error': 'Email already exists'}, status=400)
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            return Response({'message': 'Registration successful'}, status=201)
+        return Response({'error': 'Missing fields'}, status=400)
+
+
 # Update Location API
 class UpdateLocationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -180,6 +199,10 @@ class CheckAuthView(APIView):
 class LoginTemplateView(View):
     def get(self, request):
         return render(request, 'login.html')
+
+class RegisterTemplateView(View):
+    def get(self, request):
+        return render(request, 'register.html')
 
 class MapTemplateView(View):
     def get(self, request):

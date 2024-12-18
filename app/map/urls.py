@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    LoginView, LogoutView,LogoutRedirectView, RedCyclingInfrastructureGeoJSONView, UpdateLocationView,
+    LoginView, LogoutView,LogoutRedirectView, RedCyclingInfrastructureGeoJSONView, RegisterTemplateView, RegisterView, UpdateLocationView,
     CyclewaysGeoJSONView, ParkingStandsGeoJSONView, MaintenanceStandsGeoJSONView,
     UserLocationView, LoginTemplateView, MapTemplateView, OfflineTemplateView,
     CheckAuthView, YellowCyclingInfrastructureGeoJSONView, root_view, DublinBikesGeoJSONView
@@ -9,6 +9,7 @@ from .views import (
 urlpatterns = [
     # API endpoints
     path('api/login/', LoginView.as_view(), name='api-login'),
+    path('api/register/', RegisterView.as_view(), name='api-register'),
     path('api/logout/', LogoutRedirectView.as_view(), name='api-logout'),
     path('api/location/', UpdateLocationView.as_view(), name='api-update-location'),
     path('api/cycleways/', CyclewaysGeoJSONView.as_view(), name='api-cycleways'),
@@ -23,6 +24,7 @@ urlpatterns = [
     
     # Template endpoints
     path('login/', LoginTemplateView.as_view(), name='login'),
+    path('register/', RegisterTemplateView.as_view(), name='register'),
     path('map/', MapTemplateView.as_view(), name='map'),
     path('offline/', OfflineTemplateView.as_view(), name='offline'),
     path('', root_view, name='root'),  # Root URL
