@@ -161,7 +161,7 @@
 {% endblock %} {% block extra_js %}
 <script>
 	const MAP_CENTER = [53.3498, -6.2603];
-	const MAP_ZOOM = 12;
+	const MAP_ZOOM = 14;
 	const API_BASE = '/api/';
 
 	// Initialize map
@@ -268,7 +268,7 @@
 		categoryLayerGroup.clearLayers();
 		// Clear clusters if no selection
 		if (!endpoint) {
-			markerClusterGroup.clearLayers();
+			categoryLayerGroup.clearLayers();
 			return;
 		}
 
@@ -289,8 +289,15 @@
 		navigator.geolocation.getCurrentPosition(
 			async (position) => {
 				const { latitude, longitude, accuracy } = position.coords;
-				const marker = L.marker([latitude, longitude]).addTo(map);
-				marker.bindPopup(`You are within ${accuracy} meters from this point`).openPopup();
+				// Clear previous marker
+				if (window.userLocationMarker) {
+					map.removeLayer(window.userLocationMarker);
+				}
+				// Add new marker
+				window.userLocationMarker = L.marker([latitude, longitude]).addTo(map);
+				window.userLocationMarker
+					.bindPopup(`You are within ${accuracy.toFixed(2)} meters from this point`)
+					.openPopup();
 
 				// Center map on user's location and zoom in
 				map.setView([latitude, longitude], 14);

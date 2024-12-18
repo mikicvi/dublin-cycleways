@@ -8,9 +8,28 @@
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "/staticfiles/img/apple-touch-icon.png",
+            "src": "/staticfiles/img/icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
+        },
+        {
+            "src": "/staticfiles/img/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/staticfiles/img/screenshot-desktop-wide.png",
+            "sizes": "1921x1080",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "/staticfiles/img/screenshot-mobile.png",
+            "sizes": "431x918",
+            "type": "image/png",
+            "form_factor": "narrow"
         }
     ]
 }
