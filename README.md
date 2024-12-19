@@ -1,7 +1,7 @@
 # Dublin Cycling Web App
 
 This project is a django GIS web application designed to enhance the cycling experience in Dublin by providing information on bike stands, repair stations, bike lock locations, and cycling paths.  
-The application integrates various datasets from the Irish government, ranging from 2020 to the present, and offers features such as querying datasets, calculating the longest safe journey by bike, and highlighting areas without cycling paths.
+The application integrates various datasets from the Irish government, ranging from 2020 to the present, and offers features such as querying datasets, calculating the longest safe journey by bike, and highlighting areas without cycling paths. It also provides a live API data feed for Dublin Bikes, Bleeper Bikes, and Moby Bikes, refreshed every 5 minutes in accordance to the API provider - https://data.smartdublin.ie.
 
 ## Environment Variables
 
@@ -22,6 +22,7 @@ The application requires the following environment variables to be set in a `.en
 | `POSTGRES_PORT`             | PostgreSQL port                     | `5432`                          |
 | `PGADMIN_DEFAULT_EMAIL`     | Default email for pgAdmin           | `admin@example.com`             |
 | `PGADMIN_DEFAULT_PASSWORD`  | Default password for pgAdmin        | `samplepassword`                |
+| `MAPBOX_API_KEY`            | MapBox API key for routing & search | `pk.somerandomcharacters`       |
 
 ## Getting Started
 

@@ -25,6 +25,7 @@ class CustomLayerMapping(LayerMapping):
                 kwargs[key] = ""
         return kwargs
 
+# Mapping for each dataset that is utilised in this application
 datasets = [
     {
         'model': BicycleMaintenanceStandSDCC,
@@ -139,6 +140,9 @@ datasets = [
 ]
 
 def run(verbose=True):
+    """
+    Load data from GeoJSON files into the database.
+    """
     for dataset in datasets:
         print(f"Loading data for {dataset['model'].__name__}...")
         lm = CustomLayerMapping(dataset['model'], dataset['geojson_path'], dataset['mapping'], transform=False)

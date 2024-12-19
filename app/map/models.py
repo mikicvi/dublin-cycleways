@@ -151,7 +151,11 @@ class RedCyclingInfrastructure(models.Model):
         return f"{self.name or 'Unnamed'}"
 
 class CountyRoad(models.Model):
-    """Model for all public roads in Dublin County."""
+    """
+    Model for all public roads in Dublin County.
+    
+    Note: Development model only used to calculate differences.
+    """
     name = models.CharField(max_length=255, null=True, blank=True)
     geometry = models.MultiLineStringField()
 
@@ -159,7 +163,11 @@ class CountyRoad(models.Model):
         return self.name or "Unnamed Road"
 
 class CountyCycleway(models.Model):
-    """Model for all cycleways in Dublin County."""
+    """
+    Model for all cycleways in Dublin County.
+    
+    Note: Development model only used to calculate differences.
+    """
     name = models.CharField(max_length=255, null=True, blank=True)
     geometry = models.MultiLineStringField()
 
@@ -172,6 +180,13 @@ User = get_user_model()
 
 
 class Profile(models.Model):
+    """
+    Profile model extends the Django user model to include a location field.
+
+    Attributes:
+        user (OneToOneField): A one-to-one relationship with the Django User model.
+        location (PointField): A geographic point field to store the user's location, can be null or blank.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.PointField(null=True, blank=True)
 
