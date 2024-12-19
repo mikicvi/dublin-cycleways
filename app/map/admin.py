@@ -5,7 +5,9 @@ BicycleParkingStandSDCC,
 BikeMaintenanceStandFCC, 
 BikeMaintenanceStandDLR, 
 CyclewaysSDCC,
-CyclewaysDublinMetro
+CyclewaysDublinMetro,
+RedCyclingInfrastructure,
+YellowCyclingInfrastructure
 )
 
 
@@ -16,4 +18,5 @@ admin.site.register(BikeMaintenanceStandFCC)
 admin.site.register(BikeMaintenanceStandDLR)
 admin.site.register(CyclewaysSDCC)
 admin.site.register(CyclewaysDublinMetro)
-
+admin.site.register(RedCyclingInfrastructure)
+admin.site.register(YellowCyclingInfrastructure)

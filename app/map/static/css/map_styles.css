@@ -1,0 +1,179 @@
+/*Base Template Styles*/
+/* Navbar color schemes */
+body[data-bs-theme='light'] #navbar {
+	background-color: #e0f7fa;
+	/* Soft teal for light mode */
+}
+
+body[data-bs-theme='dark'] #navbar {
+	background-color: #1a237e;
+	/* Deep blue for dark mode */
+}
+/* Dark mode styles for Bootstrap components */
+body[data-bs-theme='dark'] {
+	background-color: #282c34;
+	color: #696b6e;
+}
+body[data-bs-theme='dark'] .card,
+body[data-bs-theme='dark'] .dropdown-menu,
+body[data-bs-theme='dark'] .btn,
+body[data-bs-theme='dark'] .form-select {
+	background-color: rgba(51, 51, 51, 0.8) !important;
+	color: #fff !important;
+	border-color: #555;
+}
+body[data-bs-theme='dark'] .btn,
+.dark-mode .leaflet-control-zoom-in,
+.dark-mode .leaflet-control-zoom-out {
+	background-color: rgba(68, 68, 68, 0.8) !important;
+	color: #fff;
+	border-color: #555;
+}
+
+/* Dark mode styles for Leaflet elements */
+.dark-mode .leaflet-layer,
+.dark-mode .leaflet-right,
+.dark-mode .leaflet-control-attribution {
+	filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+.dark-mode .leaflet-container {
+	background: #26272d;
+}
+
+/*Map Template Styles*/
+#map {
+	width: 100%;
+	position: relative;
+	height: calc(100vh - 120px);
+}
+
+#dropdown-container {
+	z-index: 1000;
+	width: auto;
+	max-height: fit-content;
+	top: 10px;
+	left: 10px;
+	right: 10px;
+	bottom: auto;
+	border-radius: 5px;
+}
+
+#amenities-dropdown {
+	background-color: rgba(255, 255, 255, 0.75);
+	color: #333;
+}
+
+@media (max-width: 576px) {
+	#dropdown-container {
+		width: auto;
+		max-height: fit-content;
+		top: auto;
+		left: 10px;
+		right: auto;
+		bottom: 10px;
+		transform: none;
+	}
+	.leaflet-routing-container {
+		display: none;
+	}
+}
+
+#right-button-group {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	z-index: 1000;
+}
+
+.collapse-horizontal {
+	transition: width 0.35s ease;
+	overflow: hidden;
+	opacity: 1;
+}
+
+#search-control.collapsing,
+#layer-control.collapsing {
+	width: 0 !important;
+	opacity: 0;
+	transition: width 0.35s ease;
+}
+
+#search-control {
+	position: absolute;
+	bottom: 0px;
+	right: 35px;
+	z-index: 1000;
+	padding: 10px;
+	font-size: 14px;
+	width: 275px;
+}
+
+#search-location {
+	font-size: 16px;
+}
+
+.leaflet-control-attribution {
+	display: none;
+}
+.leaflet-right {
+	padding-top: 40px;
+}
+
+#left-button-group {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	z-index: 1000;
+}
+
+#legend {
+	position: absolute;
+	bottom: 0px;
+	left: 40px;
+	border-radius: 5px;
+	padding: 10px;
+	font-size: 14px;
+	width: 275px;
+}
+
+#legend h5 {
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-size: 16px;
+}
+
+#layer-control {
+	position: absolute;
+	bottom: 0px;
+	right: 35px;
+	z-index: 1000;
+	padding: 10px;
+	font-size: 14px;
+	width: 275px;
+}
+
+.collapsing,
+.show,
+.collapse,
+.card .card-body {
+	z-index: 1000;
+}
+
+.collapse-horizontal {
+	transition: width 0.35s ease; /* Smooth animation */
+	overflow: hidden;
+	opacity: 1; /* Start fully visible */
+	z-index: 1000;
+}
+
+#legend.collapsing,
+#layer-control.collapsing {
+	width: 0 !important;
+	opacity: 0; /* Hide content smoothly */
+	transition: width 0.35s ease;
+}
+
+.row {
+	margin: 0;
+}

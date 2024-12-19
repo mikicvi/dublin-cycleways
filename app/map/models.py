@@ -36,6 +36,25 @@ class BicycleParkingStandSDCC(models.Model):
         return f"{self.location} - {self.status} - {self.senior_stand} - {self.junior_stand}"
 
 
+class DublinCityParkingStand(models.Model):
+    """
+    Model for bicycle parking stands in Dublin City.
+    """
+    # Basic Fields
+    osm_id = models.CharField(max_length=100, unique=True)  # From "id" field
+    bicycle_parking = models.CharField(max_length=50, null=True, blank=True)
+    covered = models.CharField(max_length=10, null=True, blank=True)
+    capacity = models.CharField(max_length=5, null=True, blank=True)
+    surveillance = models.CharField(max_length=10, null=True, blank=True)
+    website = models.URLField(max_length=255, null=True, blank=True)
+    fee = models.CharField(max_length=10, null=True, blank=True)
+
+    # Geometry Field
+    geometry = models.PointField()
+
+    def __str__(self):
+        return f"Parking Stand {self.osm_id} - {self.capacity or 'Unknown'}"
+    
 class BikeMaintenanceStandFCC(models.Model):
     """Model definition for Bicycle maintenance stands from Fingal County Council.
     """
@@ -113,12 +132,61 @@ class CyclewaysDublinMetro(models.Model):
     def __str__(self):
         return f"{self.featureID} - {self.name} - {self.twoway} - {self.bollard_protected}"
 
+class YellowCyclingInfrastructure(models.Model):
+    """Model definition for Yellow Cycling Infrastructure - Non segregated - Dublin County.
+    """
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+    
+    def __str__(self):
+        return f"{self.name or 'Unnamed'}"
+    
+class RedCyclingInfrastructure(models.Model):
+    """Model definition for Red Cycling Infrastructure - No cycling infrastructure - Dublin County.
+    """
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+    
+    def __str__(self):
+        return f"{self.name or 'Unnamed'}"
+
+class CountyRoad(models.Model):
+    """
+    Model for all public roads in Dublin County.
+    
+    Note: Development model only used to calculate differences.
+    """
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+
+    def __str__(self):
+        return self.name or "Unnamed Road"
+
+class CountyCycleway(models.Model):
+    """
+    Model for all cycleways in Dublin County.
+    
+    Note: Development model only used to calculate differences.
+    """
+    name = models.CharField(max_length=255, null=True, blank=True)
+    geometry = models.MultiLineStringField()
+
+    def __str__(self):
+        return self.name or "Unnamed Cycleway"
+    
 
 # # User Profile model
 User = get_user_model()
 
 
 class Profile(models.Model):
+    """
+    Profile model extends the Django user model to include a location field.
+
+    Attributes:
+        user (OneToOneField): A one-to-one relationship with the Django User model.
+        location (PointField): A geographic point field to store the user's location, can be null or blank.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.PointField(null=True, blank=True)
 

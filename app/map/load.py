@@ -4,18 +4,28 @@ from map.models import(
 BicycleMaintenanceStandSDCC, 
 BicycleParkingStandSDCC, 
 BikeMaintenanceStandFCC, 
-BikeMaintenanceStandDLR, 
+BikeMaintenanceStandDLR,
 CyclewaysSDCC,
-CyclewaysDublinMetro
+CyclewaysDublinMetro,
+DublinCityParkingStand,
+RedCyclingInfrastructure,
+YellowCyclingInfrastructure
 )
 
-def convert_to_float(value):
-    try:
-        return float(value)
-    except ValueError:
-        return None
 
+# Custom LayerMapping class to replace None with empty string
+class CustomLayerMapping(LayerMapping):
+    def feature_kwargs(self, feature):
+        """
+        Override feature_kwargs to replace None with empty strings in the data.
+        """
+        kwargs = super().feature_kwargs(feature)
+        for key, value in kwargs.items():
+            if value is None:
+                kwargs[key] = ""
+        return kwargs
 
+# Mapping for each dataset that is utilised in this application
 datasets = [
     {
         'model': BicycleMaintenanceStandSDCC,
@@ -95,11 +105,46 @@ datasets = [
             'shape_length': 'Shape_Leng',
             'geometry': 'LineString',
         }
+    },
+    {
+        'model': DublinCityParkingStand,
+        'geojson_path': Path(__file__).resolve().parent / 'data' / 'dublin-city-parking-stands.geojson',
+        'mapping': {
+            'osm_id': '@id',
+            'bicycle_parking': 'bicycle_parking',
+            'covered': 'covered',
+            'capacity': 'capacity',
+            'surveillance': 'surveillance',
+            'website': 'website',
+            'fee': 'fee',
+            'geometry': 'POINT',
+        }
+    },
+    {
+        'model': RedCyclingInfrastructure,
+        'geojson_path': Path(__file__).resolve().parent / 'exports' / 'red_infrastructure.geojson',
+        'mapping': {
+            'name': 'name',
+            'geometry': 'MultiLineString',
+        }
+    },
+    {
+        'model': YellowCyclingInfrastructure,
+        'geojson_path': Path(__file__).resolve().parent / 'exports' / 'yellow_infrastructure.geojson',
+        'mapping': {
+            'name': 'name',
+            'geometry': 'MultiLineString',
+        }
     }
+    
 ]
 
 def run(verbose=True):
+    """
+    Load data from GeoJSON files into the database.
+    """
     for dataset in datasets:
-        print(f"Data loaded for {dataset['model'].__name__}")
-        lm = LayerMapping(dataset['model'], dataset['geojson_path'], dataset['mapping'], transform=False)
+        print(f"Loading data for {dataset['model'].__name__}...")
+        lm = CustomLayerMapping(dataset['model'], dataset['geojson_path'], dataset['mapping'], transform=False)
         lm.save(strict=True, verbose=verbose)
+        print(f"Data loaded for {dataset['model'].__name__}")

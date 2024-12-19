@@ -152,3 +152,6 @@ postgres_data/
 # Data load flag
 data_loaded.flag
 data_load/
+
+# Static files
+staticfiles/
