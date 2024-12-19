@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cycleways-v9';
+const CACHE_NAME = 'cycleways-v2';
 const CACHE_LIFETIME = 8 * 60 * 60 * 1000; // Cache lifetime in milliseconds (24 hours)
 const CACHE_LIFETIME_LIVE = 5 * 60 * 1000; // Cache lifetime for live data in milliseconds (5 minutes)
 const urlsToCache = [
@@ -14,10 +14,18 @@ const urlsToCache = [
     '/staticfiles/img/marker-icon-2x-green.png',
     '/staticfiles/img/marker-icon-2x-orange.png',
     '/staticfiles/img/marker-shadow.png',
+    '/staticfiles/css/map_styles.css',
+    '/staticfiles/js/map.js',
+    '/staticfiles/js/theme-toggle.js',
+    '/staticfiles/serviceworker.js',
+    '/staticfiles/js/login.js',
+    '/staticfiles/js/register.js',
     'https://unpkg.com/leaflet/dist/leaflet.js',
     'https://unpkg.com/leaflet/dist/leaflet.css',
     'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
     'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js',
     'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css',
     'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css',

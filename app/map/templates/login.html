@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Login{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}Login{% endblock %} {% load static %} {% block content %}
 <div class="row justify-content-center">
 	<div class="col-md-5">
 		<div class="card mt-5">
@@ -37,36 +37,5 @@
 	</div>
 </div>
 {% endblock %} {% block extra_js %}
-<script>
-	document.getElementById('login-form').addEventListener('submit', function (e) {
-		e.preventDefault();
-		const username = document.getElementById('id_username').value;
-		const password = document.getElementById('id_password').value;
-		const csrfToken = document.cookie
-			.split('; ')
-			.find((row) => row.startsWith('csrftoken='))
-			?.split('=')[1];
-		fetch('/api/login/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken,
-			},
-			body: JSON.stringify({ username, password }),
-		})
-			.then((response) => {
-				if (response.ok) {
-					window.location.href = '/map/'; // Redirect to the map
-				} else {
-					return response.json().then((data) => {
-						throw new Error(data.error || 'Login failed');
-					});
-				}
-			})
-			.catch((error) => {
-				document.getElementById('error-message').innerText = error.message;
-				document.getElementById('error-message').style.display = 'block';
-			});
-	});
-</script>
+<script src="{% static 'js/login.js' %}"></script>
 {% endblock %}

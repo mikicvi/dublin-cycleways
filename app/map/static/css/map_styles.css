@@ -1,0 +1,152 @@
+/*Base Template Styles*/
+/* Navbar color schemes */
+body[data-bs-theme='light'] #navbar {
+	background-color: #e0f7fa;
+	/* Soft teal for light mode */
+}
+
+body[data-bs-theme='dark'] #navbar {
+	background-color: #1a237e;
+	/* Deep blue for dark mode */
+}
+
+/* Body background color */
+body[data-bs-theme='light'] {
+	background-color: #fafafa;
+	color: #383a42;
+}
+
+body[data-bs-theme='dark'] {
+	background-color: #282c34;
+	color: #abb2bf;
+}
+
+/*Map Template Styles*/
+#map {
+	width: 100%;
+	position: relative;
+	height: calc(100vh - 120px);
+}
+
+#dropdown-container {
+	z-index: 1000;
+	width: auto;
+	max-height: fit-content;
+	top: 10px;
+	left: 10px;
+	right: 10px;
+	bottom: auto;
+	border-radius: 5px;
+}
+
+#amenities-dropdown {
+	background-color: rgba(255, 255, 255, 0.75);
+	color: #333;
+}
+
+@media (max-width: 576px) {
+	#dropdown-container {
+		width: auto;
+		max-height: fit-content;
+		top: auto;
+		left: 10px;
+		right: auto;
+		bottom: 10px;
+		transform: none;
+	}
+	.leaflet-routing-container {
+		display: none;
+	}
+}
+
+#right-button-group {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	z-index: 1000;
+}
+
+.collapse-horizontal {
+	transition: width 0.35s ease;
+	overflow: hidden;
+	opacity: 1;
+}
+
+#search-control.collapsing,
+#layer-control.collapsing {
+	width: 0 !important;
+	opacity: 0;
+	transition: width 0.35s ease;
+}
+
+#search-control {
+	position: absolute;
+	bottom: 0px;
+	right: 35px;
+	z-index: 1000;
+	padding: 10px;
+	font-size: 14px;
+	width: 275px;
+}
+
+#search-location {
+	font-size: 16px;
+}
+
+.leaflet-control-attribution {
+	display: none;
+}
+
+#left-button-group {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	z-index: 1000;
+}
+
+#legend {
+	position: absolute;
+	bottom: 0px;
+	left: 40px;
+	border-radius: 5px;
+	padding: 10px;
+	font-size: 14px;
+	width: 275px;
+}
+
+#legend h5 {
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-size: 16px;
+}
+
+#layer-control {
+	position: absolute;
+	bottom: 0px;
+	right: 35px;
+	z-index: 1000;
+	padding: 10px;
+	font-size: 14px;
+	width: 275px;
+}
+
+.collapse-horizontal,
+.collapsing,
+.show,
+.collapse,
+.card .card-body {
+	z-index: 1000;
+}
+
+.collapse-horizontal {
+	transition: width 0.35s ease; /* Smooth animation */
+	overflow: hidden;
+	opacity: 1; /* Start fully visible */
+}
+
+#legend.collapsing,
+#layer-control.collapsing {
+	width: 0 !important;
+	opacity: 0; /* Hide content smoothly */
+	transition: width 0.35s ease;
+}
