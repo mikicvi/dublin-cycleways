@@ -20,6 +20,14 @@ function toggleTheme() {
     // Update the theme icon based on the new theme
     themeIcon.classList.toggle('bi-sun', newTheme === 'light');
     themeIcon.classList.toggle('bi-moon', newTheme === 'dark');
+
+    // Apply or remove dark mode styles for Leaflet elements
+    if (newTheme === 'dark') {
+        body.classList.add('dark-mode');
+    } else {
+        body.classList.remove('dark-mode');
+    }
+
     // Save the new theme to localStorage
     localStorage.setItem('theme', newTheme);
 }
@@ -36,4 +44,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set the theme icon based on the saved theme
     const themeIcon = document.getElementById('theme-icon');
     themeIcon.classList.add(savedTheme === 'light' ? 'bi-sun' : 'bi-moon');
+
+    // Apply or remove dark mode styles for Leaflet elements
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
 });

@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'map.apps.MapConfig',
     'corsheaders',
     'rest_framework',
+    'drf_spectacular'
 ]
 
 REST_FRAMEWORK = {
@@ -64,6 +65,16 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Dublin Cycleways API documentation',
+    'DESCRIPTION': 'API for Dublin Cycleways, including cycleways, bike parking stands, bike maintenance stands, and cycling infrastructure',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': True, 
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.IsAuthenticated'],
+
 }
 
 MIDDLEWARE = [

@@ -9,16 +9,35 @@ body[data-bs-theme='dark'] #navbar {
 	background-color: #1a237e;
 	/* Deep blue for dark mode */
 }
-
-/* Body background color */
-body[data-bs-theme='light'] {
-	background-color: #fafafa;
-	color: #383a42;
-}
-
+/* Dark mode styles for Bootstrap components */
 body[data-bs-theme='dark'] {
 	background-color: #282c34;
-	color: #abb2bf;
+	color: #696b6e;
+}
+body[data-bs-theme='dark'] .card,
+body[data-bs-theme='dark'] .dropdown-menu,
+body[data-bs-theme='dark'] .btn,
+body[data-bs-theme='dark'] .form-select {
+	background-color: rgba(51, 51, 51, 0.8) !important;
+	color: #fff !important;
+	border-color: #555;
+}
+body[data-bs-theme='dark'] .btn,
+.dark-mode .leaflet-control-zoom-in,
+.dark-mode .leaflet-control-zoom-out {
+	background-color: rgba(68, 68, 68, 0.8) !important;
+	color: #fff;
+	border-color: #555;
+}
+
+/* Dark mode styles for Leaflet elements */
+.dark-mode .leaflet-layer,
+.dark-mode .leaflet-control-attribution {
+	filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+.dark-mode .leaflet-container {
+	background: #26272d;
 }
 
 /*Map Template Styles*/

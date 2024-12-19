@@ -27,6 +27,7 @@ from .adapters import (
 )
 from django.shortcuts import render
 from django.views import View
+from drf_spectacular.utils import extend_schema
 
 User = get_user_model()
 
@@ -37,6 +38,23 @@ logger = logging.getLogger(__name__)
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        request={
+            'application/json': {
+                'type': 'object',
+                'properties': {
+                    'username': {'type': 'string'},
+                    'password': {'type': 'string'}
+                },
+                'required': ['username', 'password']
+            }
+        },
+        responses={
+            200: {'description': 'Login successful'},
+            401: {'description': 'Invalid credentials'}
+        }
+    )
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -50,6 +68,11 @@ class LoginView(APIView):
 class LogoutView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        responses={
+            200: {'description': 'Logout successful'}
+        }
+    )
     def post(self, request):
         logout(request)
         return Response({'message': 'Logout successful'}, status=200)
@@ -62,6 +85,23 @@ class LogoutRedirectView(View):
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request={
+            'application/json': {
+                'type': 'object',
+                'properties': {
+                    'username': {'type': 'string'},
+                    'email': {'type': 'string'},
+                    'password': {'type': 'string'}
+                },
+                'required': ['username', 'email', 'password']
+            }
+        },
+        responses={
+            201: {'description': 'Registration successful'},
+            400: {'description': 'Missing fields or user already exists'}
+        }
+    )
     def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -81,6 +121,22 @@ class RegisterView(APIView):
 class UpdateLocationView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request={
+            'application/json': {
+                'type': 'object',
+                'properties': {
+                    'latitude': {'type': 'number'},
+                    'longitude': {'type': 'number'}
+                },
+                'required': ['latitude', 'longitude']
+            }
+        },
+        responses={
+            200: {'description': 'Location updated successfully'},
+            400: {'description': 'Invalid or missing coordinates'}
+        }
+    )
     def post(self, request):
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
@@ -99,6 +155,24 @@ class UpdateLocationView(APIView):
 class UserLocationView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'user': {'type': 'string'},
+                    'location': {
+                        'type': 'object',
+                        'properties': {
+                            'latitude': {'type': 'number'},
+                            'longitude': {'type': 'number'}
+                        }
+                    }
+                }
+            },
+            404: {'description': 'Location not set'}
+        }
+    )
     def get(self, request):
         profile, created = Profile.objects.get_or_create(user=request.user)
         location = profile.location
@@ -116,6 +190,17 @@ class UserLocationView(APIView):
 class CyclewaysGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            }
+        }
+    )
     def get(self, request):
         # Serialize data
         sdcc_features = serialize_cycleways_sdcc()['features']
@@ -134,6 +219,17 @@ class CyclewaysGeoJSONView(APIView):
 class RedCyclingInfrastructureGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            }
+        }
+    )
     def get(self, request):
         red_geojson = serialize_red_cycling_infrastructure()
         return Response(red_geojson)
@@ -143,6 +239,17 @@ class RedCyclingInfrastructureGeoJSONView(APIView):
 class YellowCyclingInfrastructureGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            }
+        }
+    )
     def get(self, request):
         yellow_geojson = serialize_yellow_cycling_infrastructure()
         return Response(yellow_geojson)
@@ -151,6 +258,17 @@ class YellowCyclingInfrastructureGeoJSONView(APIView):
 class ParkingStandsGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            }
+        }
+    )
     def get(self, request):
         sdcc_parking_features = serialize_bicycle_parking_stands_sdcc()['features']
         dcc_parking_features = serialize_dublin_city_parking_stands()['features']
@@ -165,6 +283,17 @@ class ParkingStandsGeoJSONView(APIView):
 class MaintenanceStandsGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            }
+        }
+    )
     def get(self, request):
         dlr_features = serialize_bike_maintenance_stands_dlr()['features']
         fcc_features = serialize_bike_maintenance_stands_fcc()['features']
@@ -181,6 +310,18 @@ class MaintenanceStandsGeoJSONView(APIView):
 class DublinBikesGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            },
+            500: {'description': 'Error fetching data'}
+        }
+    )
     def get(self, request):
             data = fetch_dublin_bikes_geojson()
             if 'Error' in data:
@@ -191,6 +332,18 @@ class DublinBikesGeoJSONView(APIView):
 class BleeperBikesGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            },
+            500: {'description': 'Error fetching data'}
+        }
+    )
     def get(self, request):
         data = fetch_general_bikes_geojson('https://data.smartdublin.ie/bleeperbike-api/bikes/bleeper_bikes/current/bikes.geojson')
         if 'Error' in data:
@@ -201,6 +354,18 @@ class BleeperBikesGeoJSONView(APIView):
 class MobyBikesGeoJSONView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'type': {'type': 'string'},
+                    'features': {'type': 'array'}
+                }
+            },
+            500: {'description': 'Error fetching data'}
+        }
+    )
     def get(self, request):
         data = fetch_general_bikes_geojson('https://data.smartdublin.ie/mobybikes-api/bikes/mobymoby_dublin/current/bikes.geojson')
         if 'Error' in data:
@@ -210,6 +375,17 @@ class MobyBikesGeoJSONView(APIView):
 class CheckAuthView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'authenticated': {'type': 'boolean'},
+                    'username': {'type': 'string'}
+                }
+            }
+        }
+    )
     def get(self, request):
         return Response({'authenticated': True, 'username': request.user.username})
 
