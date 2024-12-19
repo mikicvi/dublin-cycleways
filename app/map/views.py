@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.core.cache import cache
+from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.gis.geos import Point
@@ -226,9 +226,12 @@ class RegisterTemplateView(View):
 
 class MapTemplateView(View):
     def get(self, request):
+        context = {
+        'MAPBOX_API_KEY': settings.MAPBOX_API_KEY,
+            }
         if not request.user.is_authenticated:
             return redirect('login')
-        return render(request, 'map.html')
+        return render(request, 'map.html', context)
 
 class OfflineTemplateView(View):
     def get(self, request):

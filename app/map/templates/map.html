@@ -29,15 +29,47 @@
 			bottom: 10px;
 			transform: none;
 		}
+		.leaflet-routing-container {
+			display: none;
+		}
 	}
-	#button-group {
+	#right-button-group {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+		z-index: 1000;
+	}
+	.collapse-horizontal {
+		transition: width 0.35s ease;
+		overflow: hidden;
+		opacity: 1;
+	}
+	#search-control.collapsing,
+	#layer-control.collapsing {
+		width: 0 !important;
+		opacity: 0;
+		transition: width 0.35s ease;
+	}
+	#search-control {
+		position: absolute;
+		bottom: 0px;
+		right: 35px;
+		z-index: 1000;
+		padding: 10px;
+		font-size: 14px;
+		width: 275px;
+	}
+	#search-location {
+		font-size: 16px;
+	}
+	.leaflet-control-attribution {
+		display: none;
+	}
+	#left-button-group {
 		position: absolute;
 		bottom: 10px;
 		left: 10px;
 		z-index: 1000;
-	}
-	.leaflet-control-attribution {
-		display: none;
 	}
 	#legend {
 		position: absolute;
@@ -62,14 +94,6 @@
 		font-size: 14px;
 		width: 275px;
 	}
-
-	#layer-button {
-		position: absolute;
-		bottom: 10px;
-		right: 10px;
-		z-index: 1000;
-		border-radius: 5px;
-	}
 	.collapse-horizontal,
 	.collapsing,
 	.show,
@@ -91,7 +115,7 @@
 	}
 </style>
 
-<h3 class="text-center pt-2">Dublin Safe Cycling Map</h3>
+<h3 class="text-center pt-2">Dublin Cycling Map</h3>
 
 <div id="map" class="position-relative">
 	<div id="dropdown-container" class="position-absolute top-0 start-50 translate-middle-x mt-3">
@@ -104,11 +128,11 @@
 			<option value="moby_bikes">⚡️🚲 Moby Bikes</option>
 		</select>
 	</div>
-	<div id="button-group" class="btn-group-vertical">
+	<div id="left-button-group" class="btn-group-vertical">
 		<button
 			id="update-location-button"
 			class="bi bi-crosshair btn btn-light mb-2"
-			onclick="updateLocation()"
+			onclick="fetchAndUpdateLocation()"
 		></button>
 		<button
 			id="info-button"
@@ -138,10 +162,53 @@
 			<p><span style="color: #cb852c">●</span> Cycling Services - Live API data</p>
 		</div>
 	</div>
-	<!-- Collapsible Layer Control -->
+	<div id="right-button-group" class="btn-group-vertical">
+		<!-- Search Button -->
+		<button
+			id="search-button"
+			class="bi bi-search btn btn-light mb-2"
+			type="button"
+			data-bs-toggle="collapse"
+			data-bs-target="#search-control"
+			aria-expanded="false"
+			aria-controls="search-control"
+		></button>
+
+		<!-- Layer Control Button -->
+		<button
+			id="layer-button"
+			class="bi bi-layers btn btn-light"
+			type="button"
+			data-bs-toggle="collapse"
+			data-bs-target="#layer-control"
+			aria-expanded="false"
+			aria-controls="layer-control"
+		></button>
+	</div>
+
+	<!-- Collapsible Search Card -->
+	<div id="search-control" class="collapse collapse-horizontal">
+		<div class="card card-body" style="width: 250px; background-color: rgba(255, 255, 255, 0.8)">
+			<h5 class="end-0">Search</h5>
+			<div class="form-floating mb-1">
+				<input
+					type="text"
+					id="search-location"
+					class="form-control form-control-sm"
+					placeholder="Enter location"
+				/>
+				<label for="search-location">Enter location</label>
+			</div>
+			<button id="search-submit" class="btn btn-outline-primary btn-sm w-100" onclick="handleSearchAndRoute()">
+				Search
+			</button>
+		</div>
+	</div>
+
+	<!-- Collapsible Layer Control Card -->
 	<div id="layer-control" class="collapse collapse-horizontal">
 		<div class="card card-body" style="width: 250px; background-color: rgba(255, 255, 255, 0.8)">
-			<h5>Map Layers</h5>
+			<h5 class="end-0">Map Layers</h5>
 			<form>
 				<div class="form-check">
 					<input class="form-check-input" type="checkbox" value="" id="cyclewaysLayer" checked />
@@ -165,6 +232,9 @@
 	const MAP_CENTER = [53.3498, -6.2603];
 	const MAP_ZOOM = 14;
 	const API_BASE = '/api/';
+	const MAPBOX_API_KEY = '{{ MAPBOX_API_KEY }}';
+	let userLocation = null;
+	let routeControl = null;
 
 	// Initialize map
 	const map = L.map('map').setView(MAP_CENTER, MAP_ZOOM);
@@ -184,7 +254,7 @@
 	const yellowInfrastructureStyle = { color: '#ffd003', weight: 3, opacity: 0.9 };
 
 	// Create popup content dynamically
-	function createPopupContent(feature) {
+	function createPopupContent(feature, markerCoords) {
 		const props = feature.properties || {};
 		const fields = [
 			{ key: 'featureID', label: 'Feature ID' },
@@ -225,10 +295,22 @@
 			}
 		});
 
+		// Add a button for routing only if the feature is a point
+		if (feature.geometry.type === 'Point') {
+			popupContent += `
+				<div class="text-center mt-2">
+					<button 
+						class="btn btn-sm btn-outline-primary bi bi-arrow-up-circle"
+						onclick="startRoutingFromPopup([${markerCoords.join(',')}])">
+						Route Here
+					</button>
+				</div>`;
+		}
+
 		return popupContent;
 	}
 
-	// Load GeoJSON data for a given endpoint
+	// Load GeoJSON data with Routing on Click
 	async function loadGeoJSON(endpoint, layerGroup, style = null) {
 		try {
 			const response = await fetch(`${API_BASE}${endpoint}/`);
@@ -238,8 +320,17 @@
 
 			L.geoJSON(data, {
 				style: style || undefined,
-				pointToLayer: (feature, latlng) => L.marker(latlng, { icon: createMarkerIcon(style) }),
-				onEachFeature: (feature, layer) => layer.bindPopup(createPopupContent(feature)),
+				pointToLayer: (feature, latlng) => {
+					// Apply custom marker styling
+					const iconStyle = createMarkerIcon(style || 'default');
+					return L.marker(latlng, { icon: iconStyle });
+				},
+				onEachFeature: (feature, layer) => {
+					const { coordinates } = feature.geometry;
+					const markerCoords = [coordinates[1], coordinates[0]]; // [lat, lng]
+					const popupContent = createPopupContent(feature, markerCoords); // Create popup content
+					layer.bindPopup(popupContent); // Bind popup with route button
+				},
 			}).addTo(layerGroup);
 		} catch (error) {
 			console.error(`Error loading ${endpoint}:`, error);
@@ -283,52 +374,115 @@
 		await loadGeoJSON(endpoint, categoryLayerGroup, categoryStyle);
 	}
 
-	// Update map with user's location
-	async function updateLocation() {
-		if (!navigator.geolocation) {
-			console.error('Geolocation is not supported by this browser.');
+	// Fetch and Update User Location
+	async function fetchAndUpdateLocation() {
+		return new Promise((resolve, reject) => {
+			if (!navigator.geolocation) {
+				console.error('Geolocation is not supported by this browser.');
+				return reject('Geolocation is not supported.');
+			}
+
+			navigator.geolocation.getCurrentPosition(
+				async (position) => {
+					const { latitude, longitude, accuracy } = position.coords;
+					userLocation = [latitude, longitude];
+
+					// Update map with the user's location
+					if (window.userLocationMarker) {
+						map.removeLayer(window.userLocationMarker);
+					}
+					window.userLocationMarker = L.marker(userLocation).addTo(map);
+					window.userLocationMarker
+						.bindPopup(`You are within ${accuracy.toFixed(2)} meters from this point`)
+						.openPopup();
+					map.setView(userLocation, 14);
+
+					// Optionally, send location to the server
+					try {
+						const csrfToken = document.querySelector('input#csrf-token').value || '{{ csrf_token }}';
+						const response = await fetch(`${API_BASE}location/`, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'X-CSRFToken': csrfToken,
+							},
+							body: JSON.stringify({ latitude, longitude }),
+						});
+						if (!response.ok) {
+							const data = await response.json();
+							throw new Error(data.error || 'Failed to update location');
+						}
+						console.log('Location updated successfully on the server.');
+					} catch (error) {
+						console.error('Error updating location on the server:', error);
+					}
+
+					resolve(userLocation);
+				},
+				(error) => {
+					console.error('Error fetching location:', error.message);
+					reject(error.message);
+				}
+			);
+		});
+	}
+
+	// Initialize Routing Control
+	function initializeRoutingControl(startCoords, endCoords, mode = 'cycling') {
+		if (routeControl) map.removeControl(routeControl);
+
+		const profile = mode === 'walking' ? 'mapbox/walking' : 'mapbox/cycling';
+
+		routeControl = L.Routing.control({
+			waypoints: [L.latLng(...startCoords), L.latLng(...endCoords)],
+			router: L.Routing.mapbox(MAPBOX_API_KEY, { profile }), // Specify mode of transportation
+			lineOptions: { styles: [{ color: 'red', opacity: 0.5, weight: 3 }] },
+		}).addTo(map);
+	}
+
+	// Geocode Location
+	async function geocodeLocation(query) {
+		const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+			query
+		)}.json?access_token=${MAPBOX_API_KEY}`;
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error('Failed to fetch location.');
+			const data = await response.json();
+			if (data.features && data.features.length) {
+				const [lng, lat] = data.features[0].geometry.coordinates;
+				return [lat, lng];
+			}
+			throw new Error('No results found.');
+		} catch (error) {
+			console.error(error.message);
+			return null;
+		}
+	}
+
+	// Handle Route Planning
+	async function handleSearchAndRoute() {
+		const endLocationQuery = document.getElementById('search-location').value;
+		if (!endLocationQuery) return alert('Please enter a destination.');
+
+		try {
+			if (!userLocation) userLocation = await fetchAndUpdateLocation();
+			const endCoords = await geocodeLocation(endLocationQuery);
+			if (!endCoords) return alert('Unable to find the destination.');
+
+			initializeRoutingControl(userLocation, endCoords);
+		} catch (error) {
+			console.error(error);
+			alert('An error occurred while planning the route.');
+		}
+	}
+
+	function startRoutingFromPopup(markerCoords) {
+		if (!userLocation) {
+			alert('User location is not available. Please enable location services.');
 			return;
 		}
-
-		navigator.geolocation.getCurrentPosition(
-			async (position) => {
-				const { latitude, longitude, accuracy } = position.coords;
-				// Clear previous marker
-				if (window.userLocationMarker) {
-					map.removeLayer(window.userLocationMarker);
-				}
-				// Add new marker
-				window.userLocationMarker = L.marker([latitude, longitude]).addTo(map);
-				window.userLocationMarker
-					.bindPopup(`You are within ${accuracy.toFixed(2)} meters from this point`)
-					.openPopup();
-
-				// Center map on user's location and zoom in
-				map.setView([latitude, longitude], 14);
-
-				try {
-					const csrfToken = '{{ csrf_token }}';
-					const response = await fetch(`${API_BASE}location/`, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRFToken': csrfToken,
-						},
-						body: JSON.stringify({ latitude, longitude }),
-					});
-					if (!response.ok) {
-						const data = await response.json();
-						throw new Error(data.error || 'Failed to update location');
-					}
-					console.log('Location updated successfully');
-				} catch (error) {
-					console.error('Error updating location:', error);
-				}
-			},
-			(error) => {
-				console.error('Error fetching location:', error);
-			}
-		);
+		initializeRoutingControl(userLocation, markerCoords);
 	}
 
 	// Create marker icon with specified color - Green or Orange
@@ -371,7 +525,7 @@
 	document.addEventListener('DOMContentLoaded', async () => {
 		// Initialize Segregated Cycleways (always loaded)
 		await loadCycleways();
-		await updateLocation();
+		userLocation = await fetchAndUpdateLocation();
 		await registerServiceWorker();
 		// Layer visibility control
 		const cyclewaysCheckbox = document.getElementById('cyclewaysLayer');

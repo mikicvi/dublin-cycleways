@@ -38,6 +38,8 @@ ALLOWED_HOSTS = [
     'www.dublin-cycleways.xyz'
 ]
 
+MAPBOX_API_KEY = os.getenv("MAPBOX_API_KEY")
+
 CORS_ALLOWED_ORIGINS = ['http://localhost:80', 'https://localhost:443', 'https://dublin-cycleways.xyz', 'https://www.dublin-cycleways.xyz']
 
 # Application definition
