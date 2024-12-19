@@ -38,3 +38,45 @@ To get started with the project, follow these steps:
     ```sh
     docker compose up --build
     ```
+## Deployment
+- If deploying on low config VPS, building will fail. To combat this following steps can be taken:
+  1. `docker build --platform={linux/amd64 or arm64} -t dublin_cycleways-{platform} .` - Platform specification has to be chosen based on the deployment system target architecture. 
+  2. `docker tag dublin_cycleways{-platform} {dockerusername}/dublin_cycleways:latest ` - Replace curly braces {} with whatever your platform and username are
+  3. `docker tag dublin_cycleways-{platform} {username}/dublin_cycleways:latest` - Replace curly braces {} with whatever your platform and username are
+    - Tagname is kept as `latest` so it does not have to be specified for pulling on VPS side. On VPS(or home server) enter: `docker pull {username}/dublin_cycleways`
+  - 
+---
+
+### Features List
+| **Feature**                                    | **Status** | **Details**                                                                 |
+|------------------------------------------------|------------|------------------------------------------------------------------------------|
+| Comprehensive Cycling Data Integration         | ✅          | Combines datasets including bike stands, repair stations, bike lock locations, and cycling paths sourced from the Irish government (2020–present). |
+| Advanced Querying Capabilities                 | ✅          | Enables querying of datasets across multiple categories for in-depth insights. |
+| Dynamic Map Layers                             | ✅          | - **Segregated Cycleways**: Highlights physically separated cycling infrastructure. |
+|                                                |            | - **Shared Cycleways**: Displays shared cycling lanes integrated with roads.  |
+|                                                |            | - **No Cycleways**: Identifies areas lacking cycling paths with distinct visual indicators. |
+| Parking Locations                              | ✅          | Provides a dropdown to display parking facilities for cyclists.              |
+| Repair Stations                                | ✅          | Lists repair station locations for cyclists in an accessible dropdown.       |
+| Real-Time User Location                        | ✅          | Displays the user's current location on the map for easy navigation.         |
+| Secure User Registration and Login             | ✅          | Supports account creation and login with OWASP-compliant input sanitization. |
+| Enhanced Map Legend                            | ✅          | Intuitive map legend to improve layer and route selection clarity.           |
+| Live Dublin Bikes Data                         | ✅          | Displays real-time updates for Dublin Bikes availability and stations.       |
+| Smart Dublin API Integration                   | ✅          | Adapts APIs for live data from Dublin Bikes, Bleeper Bikes, and Moby Bikes.  |
+| Real-Time Routing                              | ✅          | - **Location Search**: Enables location-based search for destinations.       |
+|                                                |            | - **Route Planning**: Provides bike-friendly routing to selected map points. |
+| Fully Responsive and Optimized UI              | ✅          | Features a Bootstrap-based design with a clean, modern interface.            |
+| PWA Optimization                               | ✅          | Offline caching for seamless functionality even without network access.      |
+| Dark and Light Mode Support                    | ✅          | Fully themed for both light and dark modes, including Leaflet elements.      |
+| Dublin City Parking Integration                | ✅          | Leverages Overpass API for comprehensive parking data.                       |
+| OpenAPI Documentation                          | ✅          | API documentation generated using DRF Spectacular with Swagger and ReDoc support - OpenAPI 3.0 schema. |
+| Modular Code Architecture                      | ✅          | Refactored CSS and JS for maintainability, extracted from templates.         |
+| Dockerized Deployment                          | ✅          | Supports automated builds and deployments; domain and SSL configuration provided separately in deploy-config-only branch. |
+| Cloud Hosting                                  | ✅          | Currently hosted on AWS free tier for global availability.                   |
+| Unit-Tested APIs                               | ✅          | Comprehensive test suite for robust and reliable API performance.            |
+
+
+### Preview
+![Screenshot 2024-12-19 at 23 19 30](https://github.com/user-attachments/assets/f7238778-93a6-41ad-bf15-36a3807c5e93)
+![Screenshot 2024-12-19 at 23 17 44](https://github.com/user-attachments/assets/61d3fe67-18ce-4e95-991c-c36a0d66221b)
+
+
