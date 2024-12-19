@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cycleways-v2';
+const CACHE_NAME = 'cycleways-v16';
 const CACHE_LIFETIME = 8 * 60 * 60 * 1000; // Cache lifetime in milliseconds (24 hours)
 const CACHE_LIFETIME_LIVE = 5 * 60 * 1000; // Cache lifetime for live data in milliseconds (5 minutes)
 const urlsToCache = [

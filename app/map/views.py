@@ -1,8 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -63,8 +61,8 @@ class LoginView(APIView):
             login(request, user)
             return Response({'message': 'Login successful'}, status=200)
         return Response({'error': 'Invalid credentials'}, status=401)
+
 # Logout API
-@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     permission_classes = [AllowAny]
 
