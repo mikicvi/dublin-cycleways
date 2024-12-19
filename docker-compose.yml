@@ -61,6 +61,7 @@ services:
             DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
             DJANGO_DEBUG: ${DJANGO_DEBUG}
             DEPLOY_SECURE: ${DEPLOY_SECURE}
+            MAPBOX_API_KEY: ${MAPBOX_API_KEY}
 
 networks:
     cycleways_network:
