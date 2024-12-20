@@ -44,7 +44,6 @@ To get started with the project, follow these steps:
   2. `docker tag dublin_cycleways{-platform} {dockerusername}/dublin_cycleways:latest ` - Replace curly braces {} with whatever your platform and username are
   3. `docker tag dublin_cycleways-{platform} {username}/dublin_cycleways:latest` - Replace curly braces {} with whatever your platform and username are
     - Tagname is kept as `latest` so it does not have to be specified for pulling on VPS side. On VPS(or home server) enter: `docker pull {username}/dublin_cycleways`
-  - 
 ---
 
 ### Features List
@@ -74,8 +73,9 @@ To get started with the project, follow these steps:
 | Cloud Hosting                                  | ✅          | Currently hosted on AWS free tier for global availability.                   |
 | Unit-Tested APIs                               | ✅          | Comprehensive test suite for robust and reliable API performance.            |
 
+---
+### Preview
 
-### Preview
 ![Screenshot 2024-12-19 at 23 19 30](https://github.com/user-attachments/assets/f7238778-93a6-41ad-bf15-36a3807c5e93)
 ![Screenshot 2024-12-19 at 23 17 44](https://github.com/user-attachments/assets/61d3fe67-18ce-4e95-991c-c36a0d66221b)
 
